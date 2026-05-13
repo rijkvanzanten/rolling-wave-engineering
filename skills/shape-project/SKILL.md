@@ -1,0 +1,159 @@
+---
+name: shape-project
+description: Shape or update a rolling-wave engineering project before slice preparation. Use when the user wants to start a rolling-wave project, define the finish line, clarify success criteria, create or update docs/rolling-wave/{project}/project.md, sketch a broad roadmap, or interrogate project-level direction without implementation details.
+---
+
+# Shape Project
+
+## Core Invariants
+
+- Work under `docs/rolling-wave/{project}/`.
+- Store project-level state in `project.md`; store slices in `slices/NNN-slug.md`.
+- Use slice statuses: `pending`, `ready`, `in progress`, `in review`, `done`.
+- Only one slice may be `ready`, `in progress`, or `in review` unless the user explicitly overrides.
+- Accept user preferences by default, but push back when strong evidence conflicts with the workflow, prior decisions, terminology, or constraints.
+- Pushback format: "I disagree because... The likely consequence is... Continue anyway?"
+- Do not modify product code. This skill only creates or updates rolling-wave planning artifacts.
+- Shape the whole project, not the first slice. `shape-project` defines the global finish line, success criteria, non-goals, constraints, risks, and broad roadmap across all slices.
+- Slices are concrete implementation steps, not general project phases. Each slice should produce a reviewable change toward the finish line.
+- Slices are delivery sequence and implementation-detail containers. Do not use "later slice" as a way to avoid deciding whether something belongs in the project finish line.
+- Keep skill mechanics out of project artifacts. Rules like "planning only in this phase", "do not modify product code", "ask one question at a time", or "write under docs/rolling-wave" are workflow instructions for the agent, not project constraints, non-goals, assumptions, risks, or decisions.
+
+## Interaction Rules
+
+- Ask one question at a time.
+- Prefer bounded choices when selecting among clear alternatives.
+- Use open prose questions when the answer should reveal context, evidence, or uncertainty.
+- Do not ask questions already answered by existing artifacts.
+- When proposing assumptions, label them explicitly and give the user a chance to correct them before writing the artifact.
+- Do not one-shot the broad roadmap. Present plausible implementation-slice options and grill the proposed sequence before writing roadmap rows.
+
+## Workflow
+
+0. Assess shaping depth and subject clarity.
+   - If the requested project subject is too vague for another agent to identify, ask what project to shape before doing anything else.
+   - Classify the shaping need as `lightweight`, `standard`, or `deep`.
+   - Lightweight shaping may produce a compact `project.md` with minimal questioning.
+   - Deep shaping should pressure-test direction before creating roadmap slices.
+   - Shape at full ambition within the named project, but do not widen into adjacent projects unless the current project cannot be coherent without them.
+
+1. Resolve the project.
+   - If the user names a project, use that slug or create it if missing.
+   - If exactly one project exists under `docs/rolling-wave/`, use it.
+   - If multiple projects exist and none was named, ask which one to use.
+   - Before creating a new project, normalize the requested slug and compare it with existing project folders. Push back if it strongly overlaps.
+
+2. Inspect existing context.
+   - Read existing `project.md`, slice files, nearby planning docs, and any user-provided requirements.
+   - Auto-resolve answers from artifacts before asking the user.
+   - Treat explicit user requirements, named docs, and existing `project.md` decisions as constraints.
+   - Treat nearby docs, old slice notes, and inferred repo context as background unless the user names them as constraints.
+   - Do not treat this skill's own workflow rules as project context. They govern the current shaping session only.
+   - If `project.md` already exists, shape as an update: preserve prior decisions unless the user explicitly changes them, keep completed slice history intact, and move stale assumptions only when artifact evidence supports the change.
+   - If context is thin, proceed after identifying finish line, success criteria, and a coarse broad slice sequence; label remaining assumptions clearly instead of asking unlimited questions.
+
+3. Grill project-level direction until the whole project shape is coherent.
+   Ask one high-leverage question at a time. Cover:
+   - finish line
+   - success criteria
+   - non-goals
+   - constraints
+   - assumptions
+   - broad implementation slice sequence
+   - dependencies
+   - project-level risks
+   - expected learnings
+
+   Keep scope and sequencing separate:
+   - First decide whether a requirement, behavior, risk, or non-goal belongs in the overall project shape.
+   - Only after project scope is clear should the roadmap decide which slice handles it.
+   - Do not ask whether a project-level requirement should be "deferred to a later slice." Ask whether it is in scope for the project at all, then record likely sequencing separately.
+   - If something is too risky for the first slice but still part of the desired outcome, keep it in the project finish line or roadmap and sequence it later. Do not turn sequencing into accidental de-scoping.
+
+   Keep slices implementation-shaped:
+   - A slice is a concrete step that `prepare-next-slice` can turn into an implementation contract and `implement-slice` can build.
+   - Do not create slices that are only project phases, research phases, planning phases, validation phases, or vague lifecycle stages.
+   - Avoid slice names like "Design the approach", "Validate compatibility", "Phase 1", or "Future hardening" unless they are rewritten as concrete implementation deliverables.
+   - Good slice framing names the product/code behavior that will change, for example "Add entitlement-aware catalog inputs" or "Filter list_items from the builtin catalog when item read is unavailable".
+   - Research, design, validation, and compatibility checks belong inside the relevant implementation slice as readiness, verification, risks, or acceptance criteria unless they produce a standalone reviewable artifact needed by implementation.
+
+   Scan for these gaps and probe only the gaps that are actually present:
+   - Finish-line gap: completion is described as activity rather than an observable end state.
+   - Success gap: success criteria are vague, subjective, or generic.
+   - Scope-boundary gap: likely adjacent work is not explicitly included or excluded.
+   - Dependency gap: the roadmap assumes unresolved inputs, tools, access, or decisions.
+   - Sequencing gap: early slices do not reduce uncertainty or do not produce reviewable implementation progress.
+   - Risk gap: cross-slice risks are likely but not recorded.
+   - Learning gap: early slices do not identify what they should teach later slices.
+
+   If useful, derive 3-5 project axes such as user workflow, data shape, migration risk, rollout, docs, or reliability. Use them only to check question coverage, not to create a detailed upfront plan.
+
+4. Shape and grill the broad implementation slices.
+   This is not `prepare-next-slice`; do not fully specify each slice. The goal is shared understanding of the broad delivery sequence.
+
+   Before writing roadmap rows:
+   - Propose 2-3 plausible slice sequences when more than one ordering could make sense.
+   - For each option, summarize the sequencing tradeoff in one sentence: what it learns early, what it delays, and what risk it carries.
+   - Recommend one sequence when evidence favors it, and push back if the user's preferred sequence has strong evidence against it.
+   - Ask the user to choose, combine, or correct the broad sequence before writing it.
+
+   Grill the chosen or likely sequence enough to catch bad slices:
+   - Are the slices implementation steps rather than phases?
+   - Does each slice produce a reviewable change or artifact needed by implementation?
+   - Does the first slice reduce a meaningful uncertainty or create the smallest useful foundation?
+   - Are later slices broad enough to stay flexible, but concrete enough that `prepare-next-slice` can refine them?
+   - Are dependencies and learnings flowing forward between slices?
+   - Are any important requirements accidentally missing because they were treated as "later" rather than in-scope?
+
+   Ask only the highest-leverage roadmap questions. Stop once the user and agent share a rough slice map, not when every slice has a full contract.
+
+5. Avoid implementation detail.
+   - Keep file/function decisions out unless they materially change scope, risk, sequencing, or feasibility.
+   - Record tempting implementation details as notes only when they affect project shape.
+
+6. Present a project-shape synthesis before writing.
+   - Summarize `Stated`, `Inferred`, and `Out of scope`.
+   - Include the proposed broad slice sequence and call out any remaining roadmap uncertainty.
+   - Exclude skill mechanics from the synthesis unless the user explicitly wants to document the planning process.
+   - Ask the user to confirm or correct the synthesis before writing.
+   - If the user corrects it, revise the synthesis before updating artifacts.
+
+7. Write or update `docs/rolling-wave/{project}/project.md`.
+   - Use `../rolling-wave-common/references/artifacts.md` for the project template.
+   - Use `../rolling-wave-common/references/lifecycle.md` for slice status rules.
+   - Create `slices/` if missing.
+   - Add broad future implementation slices as `pending` when useful.
+   - Update change history.
+   - For each major project-level decision, include a basis when it is not obvious: `direct`, `prior`, or `reasoned`.
+   - Before saving, remove skill-leak text from project sections. Examples: "planning only in this phase", "this skill does not modify product code", "use shape-project first", "ask one question at a time", or any statement that describes the agent workflow rather than the project.
+
+   Roadmap slices should describe implementation-step outcomes and learning order, without over-planning file/function details. A good pending slice has:
+   - a clear reviewable implementation outcome
+   - a reason it belongs before or after nearby slices
+   - enough scope signal for later `prepare-next-slice`
+   - an implied product/code/docs change that can be implemented and reviewed
+   - no detailed file/function/API design unless it changes sequencing or risk
+
+   Before saving, rewrite phase-like roadmap items into implementation slices. If an item cannot be expressed as a concrete implementation step, record it as a risk, open question, verification concern, or cross-slice decision instead of a slice.
+
+8. Run a completion coverage check.
+   - Every required shaping area has an answer, explicit deferral, or recorded unknown/risk.
+   - Generic success criteria are sharpened into observable outcomes.
+   - Cross-slice decisions and risks are recorded at project level.
+   - Requirements are either in the project finish line, explicitly out of scope, or recorded as project-level unknowns; they are not hidden inside "later slice" language.
+   - No section contains skill mechanics presented as project facts.
+   - Each roadmap slice is an implementation step, not just a general project phase.
+   - The broad slice sequence was presented, grilled, and confirmed or explicitly accepted as an assumption.
+   - The next likely slice is clear enough for `prepare-next-slice`.
+
+## Completion
+
+Stop when the project has enough global direction to define the desired end state and broad slice sequence without pretending later slices are fully specified.
+
+Report:
+- the shaped project path
+- the finish line in one sentence
+- the next likely slice and why it should come next
+- assumptions or risks that should carry into `prepare-next-slice`
+
+Do not start slice preparation unless the user explicitly asks.

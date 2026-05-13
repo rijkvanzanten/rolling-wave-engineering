@@ -1,0 +1,4 @@
+interface:
+  display_name: "Debug"
+  short_description: "Find root causes and fix bugs"
+  default_prompt: "Use $debug to investigate the bug, find the root cause, and fix it if appropriate."

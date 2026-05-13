@@ -1,0 +1,4 @@
+interface:
+  display_name: "Rolling-Wave Common"
+  short_description: "Shared rolling-wave references"
+  default_prompt: "Use $rolling-wave-common to inspect shared rolling-wave workflow references."

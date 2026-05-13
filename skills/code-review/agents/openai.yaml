@@ -1,0 +1,4 @@
+interface:
+  display_name: "Code Review"
+  short_description: "3-agent review of local branch changes"
+  default_prompt: "Use $code-review to review my local branch and working tree with 3 parallel review agents before I open a PR."

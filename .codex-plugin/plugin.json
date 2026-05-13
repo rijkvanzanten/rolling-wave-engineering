@@ -1,0 +1,33 @@
+{
+  "name": "rolling-wave-engineering",
+  "version": "0.1.13",
+  "description": "Rolling-wave engineering workflow skills for shaping, preparing, implementing, reviewing, completing, and debugging one project slice at a time.",
+  "author": {
+    "name": "Rijk van Zanten"
+  },
+  "license": "MIT",
+  "keywords": [
+    "rolling-wave",
+    "agentic-engineering",
+    "skills",
+    "planning"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Rolling-Wave Engineering",
+    "shortDescription": "Build one project slice at a time",
+    "longDescription": "A Codex skill set for rolling-wave engineering: shape project direction, prepare one slice deeply, implement it, review it against its contract, debug issues systematically, and complete it before moving on.",
+    "developerName": "Rijk van Zanten",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use $shape-project to shape a rolling-wave project.",
+      "Use $prepare-next-slice to prepare the next slice.",
+      "Use $debug to investigate a bug."
+    ],
+    "brandColor": "#2563EB"
+  }
+}

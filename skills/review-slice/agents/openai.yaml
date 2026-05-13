@@ -1,0 +1,4 @@
+interface:
+  display_name: "Review Slice"
+  short_description: "Review a slice implementation"
+  default_prompt: "Use $review-slice to review the current slice implementation against its contract."

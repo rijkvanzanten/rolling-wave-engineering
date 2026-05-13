@@ -1,0 +1,4 @@
+interface:
+  display_name: "Code Simplify"
+  short_description: "Review and tighten changed code"
+  default_prompt: "Use $code-simplify to review these changes for reuse, quality, and efficiency, then simplify anything worth fixing."

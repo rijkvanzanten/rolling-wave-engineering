@@ -1,0 +1,4 @@
+interface:
+  display_name: "Implement Slice"
+  short_description: "Implement a ready rolling-wave slice"
+  default_prompt: "Use $implement-slice to implement the current ready rolling-wave slice."

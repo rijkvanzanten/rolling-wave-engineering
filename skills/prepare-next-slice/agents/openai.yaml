@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prepare Next Slice"
+  short_description: "Prepare one rolling-wave slice"
+  default_prompt: "Use $prepare-next-slice to prepare the next rolling-wave slice for implementation."

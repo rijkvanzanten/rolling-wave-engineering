@@ -1,0 +1,4 @@
+interface:
+  display_name: "PR Description"
+  short_description: "Draft a PR body from branch and slice context"
+  default_prompt: "Use $pr-description to draft a PR description from this branch and the completed rolling-wave slice."
