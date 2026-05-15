@@ -25,8 +25,12 @@ description: Shape or update a rolling-wave engineering project before slice pre
 - Prefer bounded choices when selecting among clear alternatives.
 - Use open prose questions when the answer should reveal context, evidence, or uncertainty.
 - Do not ask questions already answered by existing artifacts.
+- When you ask the user a shaping question, stop and wait for the answer. Do not answer it yourself and continue in the same turn unless the user explicitly asked you to make the call.
 - When proposing assumptions, label them explicitly and give the user a chance to correct them before writing the artifact.
 - Do not one-shot the broad roadmap. Present plausible implementation-slice options and grill the proposed sequence before writing roadmap rows.
+- Do not use `Open Questions` as a substitute for grilling. Material project-shape questions must be asked before the artifact is written unless the user explicitly defers them.
+- If exactly one material project-shape question remains, ask it before finalizing instead of ending with that question in the report.
+- Do not create or update `project.md` until the user has confirmed the project-shape synthesis in the current session, unless the user explicitly asked for a no-questions draft.
 
 ## Workflow
 
@@ -50,7 +54,8 @@ description: Shape or update a rolling-wave engineering project before slice pre
    - Treat nearby docs, old slice notes, and inferred repo context as background unless the user names them as constraints.
    - Do not treat this skill's own workflow rules as project context. They govern the current shaping session only.
    - If `project.md` already exists, shape as an update: preserve prior decisions unless the user explicitly changes them, keep completed slice history intact, and move stale assumptions only when artifact evidence supports the change.
-   - If context is thin, proceed after identifying finish line, success criteria, and a coarse broad slice sequence; label remaining assumptions clearly instead of asking unlimited questions.
+   - If context is thin, do not ask unlimited questions, but still meet the minimum shaping gate before writing: finish line, observable success criteria, scope boundaries, meaningful constraints, likely first implementation slices, and any material product/API/policy decisions that affect the whole project.
+   - Label remaining assumptions clearly only when they are low-impact, evidence-backed, or explicitly safe to defer to slice preparation.
 
 3. Grill project-level direction until the whole project shape is coherent.
    Ask one high-leverage question at a time. Cover:
@@ -85,8 +90,14 @@ description: Shape or update a rolling-wave engineering project before slice pre
    - Sequencing gap: early slices do not reduce uncertainty or do not produce reviewable implementation progress.
    - Risk gap: cross-slice risks are likely but not recorded.
    - Learning gap: early slices do not identify what they should teach later slices.
+   - Open-question gap: the artifact would contain a project-level question that has not actually been asked.
 
    If useful, derive 3-5 project axes such as user workflow, data shape, migration risk, rollout, docs, or reliability. Use them only to check question coverage, not to create a detailed upfront plan.
+
+   Classify unresolved questions before writing:
+   - Ask-now questions affect the finish line, success criteria, scope, non-goals, constraints, broad slice sequence, first slice, user-facing behavior, public API behavior, compatibility policy, rollout policy, or project-level risk.
+   - Safe deferrals are implementation details for a future slice, low-impact unknowns, facts that slice preparation can verify from code, or items the user explicitly chooses to defer.
+   - Ask-now questions cannot be silently moved into `Open Questions`. Ask them one at a time, or ask the user whether to explicitly defer them.
 
 4. Shape and grill the broad implementation slices.
    This is not `prepare-next-slice`; do not fully specify each slice. The goal is shared understanding of the broad delivery sequence.
@@ -114,8 +125,11 @@ description: Shape or update a rolling-wave engineering project before slice pre
 6. Present a project-shape synthesis before writing.
    - Summarize `Stated`, `Inferred`, and `Out of scope`.
    - Include the proposed broad slice sequence and call out any remaining roadmap uncertainty.
+   - Include any remaining ask-now questions separately from safe deferrals.
    - Exclude skill mechanics from the synthesis unless the user explicitly wants to document the planning process.
+   - Ask unresolved ask-now questions before asking the user to confirm the synthesis.
    - Ask the user to confirm or correct the synthesis before writing.
+   - After asking for confirmation, stop and wait. Do not write the artifact in the same response as the confirmation request.
    - If the user corrects it, revise the synthesis before updating artifacts.
 
 7. Write or update `docs/rolling-wave/{project}/project.md`.
@@ -126,6 +140,7 @@ description: Shape or update a rolling-wave engineering project before slice pre
    - Update change history.
    - For each major project-level decision, include a basis when it is not obvious: `direct`, `prior`, or `reasoned`.
    - Before saving, remove skill-leak text from project sections. Examples: "planning only in this phase", "this skill does not modify product code", "use shape-project first", "ask one question at a time", or any statement that describes the agent workflow rather than the project.
+   - Before saving, audit `Open Questions`: each item must be either explicitly asked and left unanswered/deferred by the user, or clearly safe to defer to a later slice-preparation conversation.
 
    Roadmap slices should describe implementation-step outcomes and learning order, without over-planning file/function details. A good pending slice has:
    - a clear reviewable implementation outcome
@@ -138,9 +153,11 @@ description: Shape or update a rolling-wave engineering project before slice pre
 
 8. Run a completion coverage check.
    - Every required shaping area has an answer, explicit deferral, or recorded unknown/risk.
+   - Every material project-shape question was asked, auto-resolved from evidence, or explicitly deferred by the user before writing.
    - Generic success criteria are sharpened into observable outcomes.
    - Cross-slice decisions and risks are recorded at project level.
    - Requirements are either in the project finish line, explicitly out of scope, or recorded as project-level unknowns; they are not hidden inside "later slice" language.
+   - `Open Questions` does not contain unasked ask-now questions.
    - No section contains skill mechanics presented as project facts.
    - Each roadmap slice is an implementation step, not just a general project phase.
    - The broad slice sequence was presented, grilled, and confirmed or explicitly accepted as an assumption.
@@ -155,5 +172,7 @@ Report:
 - the finish line in one sentence
 - the next likely slice and why it should come next
 - assumptions or risks that should carry into `prepare-next-slice`
+
+Omit routine caveats for planning-only work. Do not say that no code tests were run or that `docs/rolling-wave/` is gitignored unless the user asked about verification, persistence, or file visibility, or unless an attempted validation step failed.
 
 Do not start slice preparation unless the user explicitly asks.

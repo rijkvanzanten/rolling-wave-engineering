@@ -71,3 +71,4 @@ Edit the artifact directly. Do not keep critical state only in chat.
 - Stop when all material branches in scope are resolved, explicitly deferred, or ruled out as irrelevant.
 - Stop earlier if the user tells you to stop.
 - End with a short closeout in chat: whether the scoped plan is ready to proceed, what remains unresolved, and which file is the source of truth.
+- Omit routine caveats for planning-doc-only edits. Do not say that no code tests were run or that the edited planning path is gitignored unless the user asked about verification, persistence, or file visibility, or unless an attempted validation step failed.

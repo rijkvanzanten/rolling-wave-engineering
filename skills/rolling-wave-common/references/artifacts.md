@@ -54,6 +54,7 @@ The roadmap should reflect a discussed broad slice sequence, not a first-pass gu
 ## Open Questions
 
 - Project-level unknowns that remain unresolved after shaping. Do not hide project-scope decisions here just because they will be implemented in a later slice.
+- Do not use this section to avoid asking material shaping questions. A project-level question belongs here only if it was asked and explicitly left unanswered/deferred, or if it is safe to defer to slice preparation with a clear reason.
 
 ## Potential Risks
 

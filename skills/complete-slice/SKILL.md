@@ -50,3 +50,4 @@ description: Complete a reviewed rolling-wave slice after user review. Use when 
 ## Completion
 
 Stop after marking the slice `done` and summarizing the learnings that should influence the next slice.
+Omit routine caveats for planning-doc-only completion work. Do not say that no code tests were run or that `docs/rolling-wave/` is gitignored unless the user asked about verification, persistence, or file visibility, or unless an attempted validation step failed.

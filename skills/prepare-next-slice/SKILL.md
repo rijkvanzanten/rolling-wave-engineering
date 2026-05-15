@@ -60,3 +60,4 @@ description: Prepare the next rolling-wave slice for implementation. Use when th
 ## Completion
 
 Stop after the slice is `ready`. Do not implement. Tell the user the slice path and the unresolved items, if any were explicitly deferred.
+Omit routine caveats for planning-only work. Do not say that no code tests were run or that `docs/rolling-wave/` is gitignored unless the user asked about verification, persistence, or file visibility, or unless an attempted validation step failed.
