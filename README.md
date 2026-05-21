@@ -7,8 +7,10 @@ This is at odds with my own personal working style. I personally keep a clear pr
 ## What It Adds
 
 - Project shaping that defines the finish line and broad roadmap without turning the whole project into a giant upfront implementation plan
-- Slice preparation that grills the next implementation step until behavior, scope, risks, and verification are clear
-- Implementation and review workflows that can use focused subagents when that actually helps
+- Slice preparation that grills the next implementation step until behavior, scope, risks, and verification intent are clear
+- Execution-fit calls that identify whether a slice or chunk is better suited for agent work, human work, either, or a hybrid handoff
+- Exploratory implementation first, then focused test implementation once the slice has settled
+- Implementation, testing, and review workflows that can use focused subagents when that actually helps
 - Slice completion that records learnings, risks, and reviewer notes before moving on
 - Supporting passes for local code review, simplification, debugging, and PR descriptions
 
@@ -19,8 +21,9 @@ This is at odds with my own personal working style. I personally keep a clear pr
 | Skill | Purpose |
 | --- | --- |
 | `shape-project` | Define or update the global project direction, success criteria, non-goals, constraints, risks, and rough slice sequence. |
-| `prepare-next-slice` | Pick the next slice, grill the unresolved slice-level decisions, and mark exactly one slice ready. |
-| `implement-slice` | Implement a ready slice and record implementation notes, with subagent delegation when useful. |
+| `prepare-next-slice` | Pick the next slice, grill unresolved slice-level decisions, identify execution fit, and mark exactly one slice ready. |
+| `implement-slice` | Implement a ready slice exploratorily, delegate agent-fit chunks, and pause for human-fit chunks when useful. |
+| `implement-tests` | Add focused tests for the newly implemented slice before review. |
 | `review-slice` | Review an in-progress slice against its original contract, using reviewer subagents when available. |
 | `complete-slice` | Capture learnings, risks, and review notes, then mark the slice done after manual review. |
 
@@ -64,11 +67,14 @@ Each slice file describes one concrete implementation step:
 
 - behavior
 - acceptance criteria
-- verification
+- verification intent
 - likely approach
+- execution fit
+- parallel work chunks
 - scope boundaries
 - risks
 - implementation notes
+- test notes
 - review notes
 - completion learnings
 
@@ -84,11 +90,12 @@ Slice statuses:
 
 1. Use `shape-project` to establish the finish line and rough slice sequence.
 2. Use `prepare-next-slice` to make one pending slice ready.
-3. Use `implement-slice` to build that slice.
-4. Use `review-slice` until the implementation matches the slice contract.
-5. Do whatever manual cleanup or review you want.
-6. Use `complete-slice` to capture learnings and mark the slice done.
-7. Repeat from `prepare-next-slice`.
+3. Use `implement-slice` to build that slice, keeping implementation exploratory.
+4. Use `implement-tests` to lock down the newly added logic with focused tests.
+5. Use `review-slice` until the implementation matches the slice contract.
+6. Do whatever manual cleanup or review you want.
+7. Use `complete-slice` to capture learnings and mark the slice done.
+8. Repeat from `prepare-next-slice`.
 
 Useful supporting passes:
 
