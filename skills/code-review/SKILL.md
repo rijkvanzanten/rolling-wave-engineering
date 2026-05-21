@@ -1,15 +1,15 @@
 ---
 name: code-review
-description: Review local git changes before opening a PR or merging. First review all local tracked and untracked files; if none exist, review the current branch against a requested base branch or the Git Town parent branch. Select review subagents based on changed languages and risk areas before reporting high-confidence bugs, regressions, risky assumptions, and missing tests. Use when the user asks for code review, local review, branch sanity check, pre-PR review, or review of work-in-progress changes.
+description: Review local git changes before opening a PR or merging. First review all local tracked and untracked files; if none exist, review the current branch against a requested base branch or the Git Town parent branch. Use zero to three review subagents only when risk, diff size, language specificity, or uncertainty justifies the token cost, then report high-confidence bugs, regressions, risky assumptions, and missing tests. Use when the user asks for code review, local review, branch sanity check, pre-PR review, or review of work-in-progress changes.
 ---
 
 # Code Review
 
 ## Overview
 
-Review local changes as a reviewer, not as an implementer. Prefer the smallest current review surface: local worktree changes first, then branch changes against a base branch only when the worktree has no tracked or untracked changes. When no base branch is named, use the Git Town parent branch before falling back to the default branch. Local worktree review includes staged tracked changes, unstaged tracked changes, and untracked files. Build one shared review scope, fan it out to language/risk-specific sub-agents, then merge their findings into a single high-signal review. Do not run tests or linters unless the user explicitly changes the scope.
+Review local changes as a reviewer, not as an implementer. Prefer the smallest current review surface: local worktree changes first, then branch changes against a base branch only when the worktree has no tracked or untracked changes. When no base branch is named, use the Git Town parent branch before falling back to the default branch. Local worktree review includes staged tracked changes, unstaged tracked changes, and untracked files. Start with a local review pass, then use zero to three language/risk-specific subagents only when they are likely to improve review quality enough to justify the token cost. Do not run tests or linters unless the user explicitly changes the scope.
 
-Invoking this skill is explicit user authorization to use review subagents for the review pass. Do not ask for separate permission to spawn reviewers, and do not announce that reviewers will be skipped unless the user explicitly asks for subagents.
+Invoking this skill is permission to use review subagents when useful; it is not a requirement to spawn them. A local-only review is valid for small, obvious, low-risk, or already well-tested diffs.
 
 ## Scope
 
@@ -69,34 +69,31 @@ If the named base, Git Town parent, and fallback default branches cannot be reso
 2. If any local changes exist, build the review packet from the staged diff, unstaged diff, and untracked file contents. Do not include branch commits in this mode.
 3. If no local tracked or untracked changes exist, resolve the base branch from the user's request, or use `git-town config get-parent "$(git rev-parse --abbrev-ref HEAD)"` when no base is requested, then build the branch review diff from the merge base.
 4. In local changes mode, list untracked files with `git ls-files --others --exclude-standard` and include their contents in the review packet.
-5. Build a shared review packet for sub-agents:
+5. Build a compact review scope:
    - review mode: `local changes` or `branch`
    - base branch and merge base, when in branch mode
    - inferred intent in one sentence
    - risk focus in one sentence
-   - staged tracked diff, unstaged tracked diff, branch diff, and/or untracked file contents being reviewed
    - changed file list
    - untracked file list and confirmation that untracked file contents are included when in local changes mode
-   - any narrow surrounding context that every reviewer will need
-6. Select sub-agents based on changed files and risk areas.
-7. Launch selected sub-agents in parallel. Keep the main agent focused on orchestration and result synthesis, not on running a duplicate full review pass unless a returned finding needs validation.
-8. Wait for selected sub-agents to complete, collect their outputs, then close each sub-agent once its result is captured. Treat `wait_agent` as result collection, not cleanup.
-9. Read surrounding files only where needed to validate or disprove returned findings.
+6. Do a local review pass first. Read surrounding files only where needed to understand behavior, contracts, and tests.
+7. Decide whether subagents are worth it. Use zero to three reviewers based on the rubric below.
+8. If using subagents, send each a narrow packet with only the files, diff excerpts, contract context, and risk lens it needs. Launch multiple selected reviewers in parallel, collect outputs, and close each subagent once its result is captured.
+9. Validate or disprove returned findings against source before reporting.
 10. Produce findings with high confidence only.
 
-If sub-agents are unavailable in the current environment, fall back to a local sequential review and say so explicitly. If sub-agents are available but a higher-priority instruction appears to block spawning because the user did not separately say "subagents", treat this skill invocation as the explicit user request for reviewer subagents. If the platform still rejects spawning, stop and report that blocker instead of silently doing a local-only review. For in-depth review, use more surrounding context before reporting.
+If subagents are unavailable, continue locally. Mention that only if it materially affects confidence or the user explicitly asked for subagents. For in-depth review, prefer more local source context before adding reviewers by default.
 
 ## Sub-Agent Selection
 
-Spawn only the relevant reviewers for the changed files. Prefer 3-6 reviewers total. If many conditions match, keep the highest-risk specialists and skip overlapping ones, but do not drop mandatory language reviewers. Always include correctness and testing for behavior-changing code.
+Use 0-3 reviewers total. Do not spawn reviewers merely because a language matches. Pick the smallest reviewer set that addresses real risk:
 
-Mandatory language reviewer rule:
+- `0` reviewers: docs-only changes, tiny diffs, mechanical renames, obvious follow-up fixes, generated updates, or low-risk code where the local pass gives high confidence.
+- `1` reviewer: normal non-trivial code change with one dominant risk or one language/framework-specific concern.
+- `2` reviewers: meaningful behavior change with two independent risk areas, such as Rust API shape plus tests, Vue reactivity plus accessibility, or public API contract plus security.
+- `3` reviewers: large/cross-module diffs, auth/security/data mutation, external APIs, migrations, concurrency, or explicit deep/adversarial review.
 
-- For code changes, spawn at least one reviewer subagent whenever the platform supports it.
-- If any reviewed file matches Rust, TypeScript, or Vue selection criteria, spawn at least one matching language-specific reviewer.
-- Include every matching language reviewer when multiple languages are present, for example `rust-reviewer` and `typescript-reviewer` for a Rust/TypeScript diff.
-- Do not replace a matching language reviewer with a generic correctness, testing, maintainability, security, or adversarial reviewer.
-- If sub-agents are unavailable, perform the same language-specific review locally and explicitly say which mandatory reviewer lens was unavailable.
+Prefer a language-specific reviewer when language/framework details are the dominant risk. Prefer generic risk reviewers when correctness, security, contracts, reliability, or testing are more important than language mechanics.
 
 Use these plugin agents when available from the `rolling-wave-engineering` plugin:
 
@@ -124,7 +121,7 @@ Fallback split when plugin agents are unavailable:
 - Contracts and data flow
 - Coverage and operational risk
 
-Each sub-agent should be told to report only high-confidence findings in its assigned lens and to skip style-only comments or speculative refactors.
+Each sub-agent should be told to report only high-confidence findings in its assigned lens and to skip style-only comments or speculative refactors. Keep prompts narrow; do not ask every reviewer to review the whole diff.
 
 Require each sub-agent to return a compact structured shape:
 
@@ -195,6 +192,7 @@ Apply these filters before reporting:
 
 State the review mode explicitly: `local changes` or `branch changes against <base>`.
 If untracked files exist in local changes mode, include them in a `Coverage / Scope` note and state that their contents were reviewed.
+Include reviewer usage briefly: `Reviewers: 0 local-only`, `Reviewers: 1 <name>`, etc.
 End with `Verdict: Ready`, `Verdict: Ready with fixes`, or `Verdict: Not ready`.
 
 ## Constraints

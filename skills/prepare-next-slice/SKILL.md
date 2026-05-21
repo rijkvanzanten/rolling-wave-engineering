@@ -1,6 +1,6 @@
 ---
 name: prepare-next-slice
-description: Prepare the next rolling-wave slice for implementation. Use when the user wants to continue a rolling-wave project, select the next slice, apply completed-slice learnings, grill slice-level decisions, write or update docs/rolling-wave/{project}/slices/NNN-slug.md, and mark exactly one slice ready before implementation.
+description: Prepare the next rolling-wave slice for implementation. Use when the user wants to continue a rolling-wave project, select the next slice, apply completed-slice learnings, grill slice-level decisions, decompose the slice into parallel implementation chunks where appropriate, identify whether the slice or chunks are better suited for agent, human, either, or hybrid work, write or update docs/rolling-wave/{project}/slices/NNN-slug.md, and mark exactly one slice ready before implementation.
 ---
 
 # Prepare Next Slice
@@ -38,14 +38,36 @@ description: Prepare the next rolling-wave slice for implementation. Use when th
 4. Grill only the selected slice.
    Continue until this slice is ready to implement:
    - behavior is clear
-   - verification is clear
+   - verification intent is clear enough to know what `implement-tests` should later prove
+   - expected intermediate state is clear, including whether compile/run/test failures are acceptable for this slice
    - likely approach is clear enough
+   - parallelizable work chunks are identified or ruled out
+   - execution fit is identified for the slice and each chunk
    - meaningful risks are known
    - user-facing decisions are resolved
    - scope boundaries are explicit
 
    Avoid file/function-level grilling unless it affects behavior, scope, risk, correctness, data shape, migration concerns, testability, or downstream ordering.
+   Do not require a detailed test plan, exact test files, or final validation commands at slice-preparation time unless they are already obvious and materially affect the slice shape. Tests are locked down after implementation by `implement-tests`.
+   Do not require every slice to compile, run, or pass tests. Ask whether an intermediate broken state is acceptable only when the slice is likely to leave the repo broken or partially wired. If accepted, record what may be broken and which later slice, roadmap item, or project risk will resolve it before the finish line.
    Do not prepare a slice whose only output is "decide", "research", "validate", or "design" unless the slice also has a concrete reviewable artifact or code/docs change required for implementation.
+
+   Decompose implementation work where appropriate:
+   - Create `Parallel Work Chunks` in the slice contract when the slice can be split into independent ownership areas.
+   - Prefer one to three chunks. Do not invent more chunks than `implement-slice` can usefully delegate.
+   - A good chunk has a concrete output, owned files/modules/responsibilities, dependencies, suggested owner, reason, human handoff, agent fallback, timebox, post-implementation test focus, and review focus.
+   - Chunks should be disjoint enough that one subagent can own each chunk without frequent merge conflicts.
+   - If chunks must run in order, record dependencies clearly; do not call sequential phases "parallel".
+   - If the slice is tiny, tightly coupled, or has one obvious critical path, record `Parallel Work Chunks: serial/local-only` with the reason instead of forcing fake chunks.
+   - Avoid grilling every individual file or validation command. Ask only about chunk boundaries when they affect behavior, risk, ownership, or parallel execution.
+
+   Identify execution fit:
+   - Use `agent` for broad search, repetitive edits, cross-file wiring, mechanical consistency, test scaffolding, and "find all places" work.
+   - Use `human` for narrow changes that depend on taste, naming, API/type shape, product judgment, or cases where explaining the desired result is likely slower than editing it.
+   - Use `either` when the chunk is small and well specified enough that either the user or an agent can do it efficiently.
+   - Use `hybrid` when an agent should gather context or do the broad/mechanical work, but the user should make the final taste/API/type-shape decision.
+   - Prefer `human` when the user could likely finish the chunk in under 10-15 minutes, the target files are obvious, and the main risk is clarification churn.
+   - For human or hybrid chunks, include a concrete `Human handoff` and `Agent fallback` so `implement-slice` knows whether to pause or continue.
 
 5. Write the slice artifact.
    - Use `../rolling-wave-common/references/artifacts.md` for the slice template.
@@ -53,6 +75,9 @@ description: Prepare the next rolling-wave slice for implementation. Use when th
    - Use `../rolling-wave-common/references/pushback.md` when a decision needs evidence-based pushback.
    - Preserve an immutable `Original Slice Contract` section once the slice is marked `ready`.
    - Do not write skill workflow instructions into the slice artifact. Rules like "do not rewrite this section after ready", "filled by implement-slice", or "mark ready only when..." belong in the skill workflow, not the slice plan.
+   - Include `Execution Fit` for the whole slice.
+   - Include `Parallel Work Chunks` in the `Original Slice Contract` when the implementation can be split, or explicitly record why it is serial/local-only.
+   - Include suggested owner, reason, human handoff, agent fallback, and timebox for each chunk.
    - Name new slices `NNN-slug.md`.
    - Mark the selected slice `ready`.
    - Update `project.md` with relevant roadmap pressure, decisions, and change history.

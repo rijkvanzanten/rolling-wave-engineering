@@ -101,11 +101,39 @@ The concrete implementation step this slice delivers and why it matters now.
 
 ### Verification
 
-- Commands, checks, or manual review needed.
+- The behavior that will need to be proven after implementation. Keep this as verification intent, not a fully locked test plan.
+
+### Expected Intermediate State
+
+- Whether this slice is expected to leave the repo compiling, runnable, and testable.
+- If not, what may be broken and which later slice or project risk will restore it before the finish line.
 
 ### Likely Approach
 
 - Approach clear enough to start, without over-planning every file.
+
+### Execution Fit
+
+- Suggested owner: agent | human | either | hybrid
+- Reason:
+- Human handoff:
+- Agent fallback:
+- Timebox:
+
+### Parallel Work Chunks
+
+- Chunk 1:
+  - Output:
+  - Ownership:
+  - Dependencies:
+  - Suggested owner: agent | human | either | hybrid
+  - Reason:
+  - Human handoff:
+  - Agent fallback:
+  - Timebox:
+  - Post-implementation test focus:
+  - Review focus:
+- Or: serial/local-only because ...
 
 ### Scope Boundaries
 
@@ -128,6 +156,10 @@ The concrete implementation step this slice delivers and why it matters now.
 
 - None yet.
 
+## Test Notes
+
+- None yet.
+
 ## Review Notes
 
 - None yet.
@@ -137,5 +169,5 @@ The concrete implementation step this slice delivers and why it matters now.
 - None yet.
 ```
 
-Mark the slice `ready` only when behavior, verification, likely approach, meaningful risks, user-facing decisions, and scope boundaries are resolved for this slice.
+Mark the slice `ready` only when behavior, verification intent, expected intermediate state, likely approach, execution fit, parallel work chunks or serial/local-only reasoning, meaningful risks, user-facing decisions, and scope boundaries are resolved for this slice. Do not require a detailed test plan before implementation; `implement-tests` turns the finished slice into focused test coverage afterward. A slice may intentionally leave the repo unable to compile, run, or pass tests if that intermediate breakage is recorded and tracked to a later slice or project risk.
 Keep skill mechanics out of slice artifacts. Do not write instructions like "do not rewrite this section", "filled by implement-slice", or "mark ready only when..." into the generated slice file.

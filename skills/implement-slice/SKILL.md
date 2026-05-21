@@ -1,6 +1,6 @@
 ---
 name: implement-slice
-description: Implement a ready rolling-wave slice. Use when the user explicitly wants to code the current docs/rolling-wave/{project}/slices/NNN-slug.md slice, mark it in progress, make an explicit delegation decision, dispatch one to three implementation subagents for non-trivial parallelizable work when available, record implementation notes, and preserve the original slice contract for review.
+description: Implement a ready rolling-wave slice without locking it down with tests yet. Use when the user explicitly wants to code the current docs/rolling-wave/{project}/slices/NNN-slug.md slice, mark it in progress, execute the prepared parallel work chunks with one implementation subagent per agent-fit chunk where available, pause or hand off chunks marked human-fit when appropriate, record implementation notes, defer test-writing to implement-tests, and preserve the original slice contract for review.
 ---
 
 # Implement Slice
@@ -14,7 +14,10 @@ description: Implement a ready rolling-wave slice. Use when the user explicitly 
 - Accept user preferences by default, but push back when strong evidence conflicts with the workflow, prior decisions, terminology, or constraints.
 - Pushback format: "I disagree because... The likely consequence is... Continue anyway?"
 - Product code changes are allowed only because this skill is the explicit implementation entry point.
+- Treat implementation as exploratory: refactoring, slice-shape discoveries, and plan adjustments are expected.
+- Do not write new tests in this phase unless they are required to understand or unblock the implementation. The dedicated `implement-tests` phase locks down the finished slice afterward.
 - Do not silently skip delegation. Before implementation work starts, either dispatch implementation subagents or record why this slice must be implemented locally.
+- Invoking this skill is the explicit request to implement the slice using the workflow below, including implementation subagents when the execution shape calls for them. Subagent use is based on necessity, execution fit, and available parallel ownership; it must not depend on whether the user separately said "subagents" in the current turn.
 
 ## Workflow
 
@@ -25,8 +28,10 @@ description: Implement a ready rolling-wave slice. Use when the user explicitly 
    - If multiple candidate slices exist, ask which one to implement.
 
 2. Read the contract.
-   - Read `project.md`.
-   - Read the slice file, especially `Original Slice Contract`, acceptance criteria, verification, scope boundaries, and risks.
+   - Read relevant `project.md` sections for project-level decisions, risks, and completed-slice learnings.
+   - Read the slice file, especially `Original Slice Contract`, acceptance criteria, verification intent, scope boundaries, and risks.
+   - Read `Parallel Work Chunks` from the slice contract. Treat prepared chunks as the default execution plan.
+   - Read `Execution Fit` for the slice and chunk-level suggested owners.
    - Use `../rolling-wave-common/references/lifecycle.md` when status ownership is unclear.
    - Use `../rolling-wave-common/references/pushback.md` when implementation would violate the contract or lifecycle.
    - Do not rewrite the original contract. Record discoveries elsewhere.
@@ -38,41 +43,57 @@ description: Implement a ready rolling-wave slice. Use when the user explicitly 
 4. Choose execution shape.
    This is mandatory. Do not start editing product code until the execution shape is chosen and recorded in the implementation attempt.
 
-   Default to subagents for non-trivial slices when the platform supports them. A slice is non-trivial if it touches multiple modules, has distinct implementation and test surfaces, requires both codebase discovery and code edits, or has enough contract detail that separate ownership areas can be defined.
+   Do not use "the user did not explicitly ask for subagents this turn" as a reason to keep work local. The explicit request is the use of `implement-slice`; decide based on the slice contract, execution fit, risk, parallel ownership, and platform availability.
 
-   Use one to three implementation subagents when any disjoint ownership split is available, for example:
-   - discovery / implementation / tests
-   - backend tool / adapter exposure / integration tests
-   - model or schema code / API or transport code / verification
-   - existing-pattern research / focused patch / test repair
+   Use the prepared `Parallel Work Chunks` first:
+   - If the slice defines parallel chunks, spawn one implementation subagent per `agent` or suitable `either` chunk when the platform supports subagents.
+   - Do not spawn subagents for chunks marked `human` unless the user asks to use the agent fallback.
+   - For chunks marked `hybrid`, do the agent-fit context gathering or mechanical work, then pause for the human decision before finalizing that chunk unless the contract says the agent fallback is acceptable.
+   - If a chunk is marked `human`, pause before implementation and present the human handoff, reason, timebox, and agent fallback. Ask whether the user wants to do it by hand or have the agent continue with the fallback.
+   - Keep chunks as written unless a chunk has become unsafe, stale, overlapping, or impossible. If so, record the reason before adjusting execution shape.
+   - Assign each subagent the chunk's concrete output, owned files/modules/responsibilities, dependencies, post-implementation test focus, and review focus.
+   - Tell each subagent to skip new test coverage unless a minimal test/probe is required to unblock implementation.
+   - Keep one immediate integration or critical-path task local when useful, but do not duplicate a chunk already owned by a subagent.
+
+   If the slice has no usable chunks, default to subagents for non-trivial slices when the platform supports them. A slice is non-trivial if it touches multiple modules, has distinct implementation and test surfaces, requires both codebase discovery and code edits, or has enough contract detail that separate ownership areas can be defined.
+
+   Use one to three implementation subagents when any disjoint ownership split is available. If more than three chunks would be needed, stop and ask to re-prepare the slice or merge chunks before implementation.
 
    Keep work local only when one of these is true:
    - the slice is genuinely tiny
    - all changes are tightly coupled in one file or one small function
+   - all remaining chunks are marked `human` and the user chooses to do them by hand
+   - the slice contract explicitly says `Parallel Work Chunks: serial/local-only` and the reason still holds
    - subagents are unavailable in the current environment
    - repository instructions explicitly prohibit subagent dispatch
    - the next action is an urgent blocker that must be done before any useful parallel work exists
 
-   If keeping work local, write the reason into `Implementation Notes` before editing product code.
+   If keeping work local or pausing for human work, write the reason into `Implementation Notes` before editing product code.
+   If the platform rejects spawning even though the execution shape calls for subagents, continue locally only after recording that platform blocker in the implementation notes and final response.
 
    When delegating:
    - Assign disjoint ownership with explicit files, modules, or responsibilities.
    - Tell each subagent it is not alone in the codebase.
    - Tell each subagent not to revert edits made by others.
-   - Require each subagent to list changed files and verification performed.
+   - Require each subagent to list changed files and any lightweight verification performed.
+   - Require each subagent to identify the tests that `implement-tests` should add or update for its chunk.
+   - Require each subagent to report whether its chunk contract was completed, partially completed, or blocked.
    - Keep one immediate critical-path task local instead of blocking entirely on subagents.
    - After each subagent result is captured and no further input is needed, close that subagent. `wait_agent` does not close it automatically.
 
 5. Implement against the slice contract.
    - Prefer existing project patterns.
    - Keep edits scoped to the slice.
+   - Favor getting the behavior into the right shape over prematurely locking tests around churn.
+   - Do not broaden the slice just to make a future test plan cleaner.
+   - Respect `Execution Fit`: use agents for broad/mechanical work, pause for human-fit taste/API/type-shape calls, and resume only after the user provides the result or authorizes the fallback.
    - If the slice contract is wrong or incomplete, pause, record the issue, and ask before expanding scope.
 
 6. Record implementation notes.
-   - Use `references/implementation-handoff.md` for the note format.
-   - Update the slice `Implementation Notes` section with execution shape, delegation/local-only reason, ownership, changed files, commands run, known risks, deviations, and follow-up review focus.
+   - Use `references/implementation-handoff.md` for the note format. Resolve this path relative to this `implement-slice` skill directory, not `rolling-wave-common`.
+   - Update the slice `Implementation Notes` section with execution shape, human-fit pauses or handoffs, delegation/local-only reason, ownership, changed files, commands run, skipped/deferred tests, known risks, deviations, and follow-up test/review focus.
    - Update `project.md` only for cross-slice decisions, new risks, or roadmap pressure.
 
 ## Completion
 
-Stop with the slice still `in progress`. Summarize changed files, verification run, and what `review-slice` should check next.
+Stop with the slice still `in progress`. Summarize changed files, any lightweight verification run, tests intentionally deferred to `implement-tests`, and what `implement-tests` should lock down next.
