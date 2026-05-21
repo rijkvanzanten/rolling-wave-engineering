@@ -1,6 +1,6 @@
 ---
 name: complete-slice
-description: Complete a reviewed rolling-wave slice after user review. Use when the user says a slice is done, wants to mark an in-review slice done, capture implementation and review learnings, update docs/rolling-wave/{project}/project.md potential risks and review notes, and prepare later slices to inherit what was learned.
+description: Complete a reviewed rolling-wave slice after user review. Use when the user says a slice is done, wants to mark an in-review slice done, capture implementation and review learnings, update docs/rolling-wave/{project}/project.md potential risks and review notes, output a roadmap progress checklist of completed and remaining slices, and prepare later slices to inherit what was learned.
 ---
 
 # Complete Slice
@@ -45,20 +45,26 @@ description: Complete a reviewed rolling-wave slice after user review. Use when 
      - change history
    - If the slice completed in an intentionally broken intermediate state, capture that in completion learnings and project risks/review notes so future slices inherit it.
    - Keep future slices broad unless a learning materially changes their scope or order.
-   - Apply completion learnings when identifying the next slice, especially if they change roadmap order, expose a blocker, or make the nominal next slice less valuable.
+   - Apply completion learnings when annotating the roadmap, especially if they change order, expose a blocker, or alter a remaining slice's scope.
 
 5. Mark done.
    - Set the slice status to `done`.
    - Clear the active-slice slot so `prepare-next-slice` can choose the next slice.
 
-6. Identify the next slice.
+6. Output roadmap progress.
    - Inspect `project.md` roadmap and all slice statuses after marking the current slice `done`.
-   - Select the next likely pending slice that best advances the finish line and incorporates the completed slice's learnings.
-   - If the roadmap order still makes sense, choose the next pending roadmap item.
-   - If completion learnings suggest a different pending slice should come next, explain the reorder pressure without preparing the slice.
-   - If no pending slice remains, say the roadmap appears complete and name any remaining open questions, risks, or review notes that might require a new slice.
+   - Treat the roadmap as the planned sequence. Do not call the next item "likely" unless the roadmap itself is ambiguous or completion learnings create explicit reorder pressure.
+   - Identify the next planned slice as the first non-done roadmap slice after applying any explicitly recorded roadmap pressure.
+   - Output a checklist of the project progression:
+     - checked items for slices with status `done`
+     - unchecked items for slices that remain `pending`, `ready`, `in progress`, or `in review`
+   - Keep the checklist in roadmap order. Include slice id/name and one-line purpose.
+   - Do not include redundant status labels like `(done)` or `(pending)` in checklist items; the checkbox state already communicates done vs not done.
+   - Mark the next planned slice clearly, for example `next`.
+   - If completion learnings create reorder pressure, add a short note below the checklist instead of replacing the planned sequence with "likely" language.
+   - If no unfinished roadmap slices remain, say the roadmap appears complete and name any remaining open questions, risks, or review notes that might require a new slice.
 
 ## Completion
 
-Stop after marking the slice `done`, summarizing the learnings that should influence the next slice, and naming the next likely slice with a short reason. Do not prepare the next slice unless the user explicitly asks.
+Stop after marking the slice `done`, summarizing only the learnings that should influence future work, naming the next planned slice, and outputting the roadmap progress checklist. Do not prepare the next slice unless the user explicitly asks.
 Omit routine caveats for planning-doc-only completion work. Do not say that no code tests were run or that `docs/rolling-wave/` is gitignored unless the user asked about verification, persistence, or file visibility, or unless an attempted validation step failed.

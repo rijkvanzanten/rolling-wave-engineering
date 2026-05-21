@@ -1,6 +1,6 @@
 {
   "name": "rolling-wave-engineering",
-  "version": "0.1.25",
+  "version": "0.1.30",
   "description": "Rolling-wave engineering workflow skills for shaping, preparing, implementing, reviewing, completing, and debugging one project slice at a time.",
   "author": {
     "name": "Rijk van Zanten"
@@ -26,7 +26,6 @@
     "defaultPrompt": [
       "Use $shape-project to shape a rolling-wave project.",
       "Use $prepare-next-slice to prepare the next slice.",
-      "Use $implement-tests after $implement-slice to lock down the current slice.",
       "Use $debug to investigate a bug."
     ],
     "brandColor": "#2563EB"

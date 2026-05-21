@@ -14,4 +14,4 @@ Check:
 - New risks are captured in the slice and, when project-level, in `project.md`.
 - Future-slice discoveries are recorded as roadmap pressure, not silently folded into this slice.
 
-Report findings first, ordered by severity. Include file and line references when possible.
+Report findings only, ordered by severity. Include file and line references when possible. If there are no findings, the chat response should be exactly `No findings.` with no summary of what passed.

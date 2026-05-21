@@ -67,4 +67,12 @@ description: Review a rolling-wave slice implementation against its original sli
 
 ## Completion
 
-Leave the slice `in review`. If requirements are unmet, state the needed fixes. If no blocking findings remain, say it is ready for the user's manual cleanup and `complete-slice`.
+Leave the slice `in review`. In the chat response, report only findings and required fixes. Do not include a "good news" summary, list what passed, or summarize successful verification.
+
+If there are no findings, respond tersely with exactly:
+
+```text
+No findings.
+```
+
+Do not add supporting bullets after `No findings.` unless the user explicitly asks for review details.

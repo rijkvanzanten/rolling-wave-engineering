@@ -1,4 +1,4 @@
 interface:
   display_name: "Complete Slice"
-  short_description: "Complete a reviewed slice"
-  default_prompt: "Use $complete-slice to mark a reviewed rolling-wave slice done and capture learnings."
+  short_description: "Complete a slice and show progress"
+  default_prompt: "Use $complete-slice to mark a reviewed rolling-wave slice done, capture learnings, and output the roadmap progress checklist."
