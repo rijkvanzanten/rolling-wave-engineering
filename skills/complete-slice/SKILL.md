@@ -14,6 +14,7 @@ description: Complete a reviewed rolling-wave slice after user review. Use when 
 - Accept user preferences by default, but push back when strong evidence conflicts with the workflow, prior decisions, terminology, or constraints.
 - Pushback format: "I disagree because... The likely consequence is... Continue anyway?"
 - Do not perform generic code review. If review is needed, route to `review-slice`.
+- Slice/project artifacts are agent state. Record completion learnings and project updates as terse table rows or `key: value` bullets; avoid narrative prose unless it captures a decision-critical reason.
 
 ## Workflow
 
@@ -25,12 +26,14 @@ description: Complete a reviewed rolling-wave slice after user review. Use when 
 2. Read completion state.
    - Read `project.md`.
    - Read the slice file: original contract, expected intermediate state, implementation notes, test notes, review notes, acceptance criteria, and deferred items.
+   - If the slice references a child rolling-wave project, read that child `project.md` and relevant child slice state.
    - Use `../rolling-wave-common/references/lifecycle.md` for completion transition rules.
    - Use `../rolling-wave-common/references/pushback.md` when completion would skip unresolved work.
    - Confirm the user is satisfied with any manual cleanup or remaining risk.
 
 3. Refuse premature completion when needed.
    - If review notes include unresolved requirements that contradict the accepted expected intermediate state, do not mark done.
+   - If the slice references a child rolling-wave project and the parent slice's child-project completion condition is not met, do not mark the parent slice done unless the user explicitly changes the condition or accepts the remaining child work as out of scope for the parent slice.
    - It is valid to mark a slice done while the repo does not compile, run, or pass tests if that broken state is intentional, reviewed, accepted by the user, and tracked to a later slice, roadmap item, project risk, or review note.
    - Do not mark done if the broken state threatens the final project finish line and no later work is identified to fix it.
    - Route back to `implement-slice` or `review-slice` with the concrete blocker.
@@ -44,8 +47,10 @@ description: Complete a reviewed rolling-wave slice after user review. Use when 
      - roadmap pressure
      - change history
    - If the slice completed in an intentionally broken intermediate state, capture that in completion learnings and project risks/review notes so future slices inherit it.
+   - If the slice was backed by a child rolling-wave project, capture the child project path, child completion status, and parent-relevant child learnings in completion learnings and parent `project.md` when they affect later parent slices.
    - Keep future slices broad unless a learning materially changes their scope or order.
    - Apply completion learnings when annotating the roadmap, especially if they change order, expose a blocker, or alter a remaining slice's scope.
+   - Preserve the artifact's compact structure. Prefer appending dated table rows to `Completion Learnings`, `Risks`, `Review Notes`, `Decisions`, or `Change Log` over adding paragraphs.
 
 5. Mark done.
    - Set the slice status to `done`.

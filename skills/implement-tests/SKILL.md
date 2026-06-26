@@ -16,6 +16,7 @@ description: Add or update tests for the current rolling-wave slice after explor
 - This phase may edit tests and minimal production code needed to make slice behavior testable or correct.
 - Test only the logic added or changed for the current slice. Do not turn this into broad hardening for future slices or unrelated regressions.
 - If the slice contract says this slice may intentionally leave the repo unable to compile, run, or pass tests, do not force test implementation just to hide that intermediate state. Record the skipped/blocked coverage and the later slice or risk that must close it.
+- Slice/project artifacts are agent state. Record test notes as terse table rows or `key: value` bullets; avoid narrative prose unless it captures a decision-critical reason.
 
 ## Workflow
 
@@ -54,6 +55,7 @@ description: Add or update tests for the current rolling-wave slice after explor
 6. Record test notes.
    - Add or update the slice `Test Notes` section. If the section is missing, create it before `Review Notes`.
    - Include test files changed, behavior covered, commands run, failures fixed, skipped coverage, and review focus.
+   - Preserve the artifact's compact structure. Prefer appending one dated row plus short keyed details over adding paragraphs.
    - Update `project.md` only for project-level risks, review notes, or cross-slice decisions discovered while testing.
 
 ## Completion

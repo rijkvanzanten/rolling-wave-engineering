@@ -18,6 +18,7 @@ description: Implement a ready rolling-wave slice without locking it down with t
 - Do not write new tests in this phase unless they are required to understand or unblock the implementation. The dedicated `implement-tests` phase locks down the finished slice afterward.
 - Do not silently skip delegation. Before implementation work starts, either dispatch implementation subagents or record why this slice must be implemented locally.
 - Invoking this skill is the explicit request to implement the slice using the workflow below, including implementation subagents when the execution shape calls for them. Subagent use is based on necessity, execution fit, and available parallel ownership; it must not depend on whether the user separately said "subagents" in the current turn.
+- Slice/project artifacts are agent state. Record implementation notes as terse table rows or `key: value` bullets; avoid narrative handoff prose unless it captures a decision-critical reason.
 
 ## Workflow
 
@@ -29,7 +30,8 @@ description: Implement a ready rolling-wave slice without locking it down with t
 
 2. Read the contract.
    - Read relevant `project.md` sections for project-level decisions, risks, and completed-slice learnings.
-   - Read the slice file, especially `Original Slice Contract`, acceptance criteria, verification intent, scope boundaries, and risks.
+   - Read the slice file, especially `Original Slice Contract`, acceptance criteria, verification intent, child rolling-wave project relationship, minimum implementation, scope boundaries, and risks.
+   - If the slice is backed by a child rolling-wave project, read the child `project.md` and current child slice state before choosing execution shape.
    - Read `Parallel Work Chunks` from the slice contract. Treat prepared chunks as the default execution plan.
    - Read `Execution Fit` for the slice and chunk-level suggested owners.
    - Use `../rolling-wave-common/references/lifecycle.md` when status ownership is unclear.
@@ -82,6 +84,19 @@ description: Implement a ready rolling-wave slice without locking it down with t
    - After each subagent result is captured and no further input is needed, close that subagent. `wait_agent` does not close it automatically.
 
 5. Implement against the slice contract.
+   - If the parent slice points to a child rolling-wave project, implement only the child slice or child-project work that is currently ready. Do not collapse the child project's remaining roadmap into this parent-slice implementation.
+   - Keep parent implementation notes focused on parent-visible progress, child project path, active child slice, and child learnings that affect the parent project.
+   - Before writing code for each local or delegated chunk, apply the minimum-implementation ladder:
+     1. Does this code need to exist for this slice?
+     2. Does the standard library or language runtime already do it?
+     3. Does a native platform, browser, database, framework, or OS feature cover it?
+     4. Does an already-installed dependency or existing project helper solve it?
+     5. Can this be one direct path instead of a new abstraction, option, fallback, or dependency?
+     6. Only then write the minimum custom code that satisfies the slice.
+   - Prefer deletion, direct wiring, and existing primitives over future-proofed scaffolding.
+   - Do not add config knobs, wrappers, factories, compatibility layers, broad normalization, or edge-case guards unless the slice contract, a real caller, a trust boundary, or repo evidence requires them.
+   - Do not simplify away input validation at trust boundaries, security controls, data-loss prevention, accessibility basics, migration safety, or behavior the user explicitly requested.
+   - When taking an intentional shortcut with a known ceiling, record the ceiling and upgrade trigger in implementation notes. Add a short code comment only when future maintainers would otherwise misread the shortcut as accidental or unsafe.
    - Prefer existing project patterns.
    - Keep edits scoped to the slice.
    - Favor getting the behavior into the right shape over prematurely locking tests around churn.
@@ -92,6 +107,8 @@ description: Implement a ready rolling-wave slice without locking it down with t
 6. Record implementation notes.
    - Use `references/implementation-handoff.md` for the note format. Resolve this path relative to this `implement-slice` skill directory, not `rolling-wave-common`.
    - Update the slice `Implementation Notes` section with execution shape, human-fit pauses or handoffs, delegation/local-only reason, ownership, changed files, commands run, skipped/deferred tests, known risks, deviations, and follow-up test/review focus.
+   - Include what was deliberately skipped or simplified under the minimum-implementation decision, plus any upgrade trigger.
+   - Preserve the artifact's compact structure. Prefer appending one dated row plus short keyed details over adding paragraphs.
    - Update `project.md` only for cross-slice decisions, new risks, or roadmap pressure.
 
 ## Completion

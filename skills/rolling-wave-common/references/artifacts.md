@@ -1,5 +1,20 @@
 # Rolling-Wave Artifacts
 
+These artifacts are agent state, not human-facing documentation. Optimize for fast retrieval, low ambiguity, stable structure, and cheap updates.
+
+## Artifact Style
+
+- Use stable headings and terse `key: value` bullets.
+- Prefer tables for ordered state such as roadmaps, chunks, risks, and decisions.
+- Use canonical statuses only: `pending`, `ready`, `in progress`, `in review`, `done`.
+- Put each fact in one canonical place; link to it elsewhere instead of duplicating prose.
+- Prefer IDs over paragraphs: `S1`, `D1`, `R1`, `Q1`, `C1`, `L1`.
+- Keep rationale short with `why:` or `basis:` fields.
+- Use paths for references, for example `docs/rolling-wave/{project}/slices/001-slug.md`.
+- Preserve chronological append-only notes for implementation, tests, review, and completion.
+- Do not write polished narrative, background essays, or human-facing summaries. Use `exec-summary` for that.
+- Keep skill mechanics out of artifacts unless the user explicitly asks to document the process.
+
 ## Project Artifact
 
 Create or update `docs/rolling-wave/{project}/project.md` with this shape.
@@ -14,62 +29,78 @@ updated: YYYY-MM-DD
 
 # {Project Name}
 
-## Finish Line
+## State
 
-What is true when the project is complete.
+- finish_line: {observable completed state}
+- current_slice: none | NNN-slug
+- current_child_project: none | docs/rolling-wave/{child-project}/project.md
+- default_base_branch: git-town parent | {branch}
 
 ## Success Criteria
 
-- Observable criteria that define success.
+| id | criterion | verification_signal |
+| --- | --- | --- |
+| S1 | ... | ... |
 
-## Non-Goals
+## Scope
 
-- Explicit exclusions.
+| id | type | item | basis |
+| --- | --- | --- | --- |
+| SC1 | include | ... | direct | prior | reasoned |
+| SC2 | exclude | ... | direct | prior | reasoned |
 
 ## Constraints
 
-- Technical, product, time, dependency, compatibility, operational, security, or organizational constraints that apply to the project itself.
-- Do not record the current skill's workflow mechanics here. "Planning only in this phase", "do not modify product code", "ask one question at a time", and similar instructions describe the agent session, not the project.
+| id | constraint | impact |
+| --- | --- | --- |
+| C1 | ... | ... |
 
 ## Assumptions
 
-- Current beliefs that may need validation.
-
-## Broad Roadmap
-
-Sequence for reaching the finish line. This is not a substitute for project scope: requirements belong in the finish line, success criteria, non-goals, constraints, decisions, risks, or open questions before they are assigned to a slice.
-
-Slices are implementation steps, not general project phases. Each row should describe a concrete reviewable change that can later become a slice contract. Do not use broad phase labels like "design", "validate", "harden", or "phase 1" unless the row states the specific implementation outcome.
-
-The roadmap should reflect a discussed broad slice sequence, not a first-pass guess. Notes should briefly capture why the slice belongs in that position, especially when it reduces uncertainty, unlocks later work, or intentionally delays risk.
-
-| Slice | Status | Purpose | Notes |
+| id | assumption | confidence | validation |
 | --- | --- | --- | --- |
-| 001-{slug} | pending | ... | ... |
+| A1 | ... | high | medium | low | ... |
 
-## Cross-Slice Decisions
+## Roadmap
 
-- Decisions that affect more than one slice.
+Slices are implementation steps, not general phases. Child-project-backed slices stay as one parent row and link to their own project.
+
+| slice | status | purpose | child_project | depends_on | why_now |
+| --- | --- | --- | --- | --- | --- |
+| 001-{slug} | pending | ... | none | none | ... |
+
+## Decisions
+
+| id | decision | basis | affects |
+| --- | --- | --- | --- |
+| D1 | ... | direct | prior | reasoned | project | 001-slug | cross-slice |
 
 ## Open Questions
 
-- Project-level unknowns that remain unresolved after shaping. Do not hide project-scope decisions here just because they will be implemented in a later slice.
-- Do not use this section to avoid asking material shaping questions. A project-level question belongs here only if it was asked and explicitly left unanswered/deferred, or if it is safe to defer to slice preparation with a clear reason.
+| id | question | status | owner | blocks | defer_reason |
+| --- | --- | --- | --- | --- | --- |
+| Q1 | ... | open | deferred | answered | user | agent | none | ... |
 
-## Potential Risks
+## Risks
 
-- Project-level risks worth surfacing in later PR or project summaries.
+| id | risk | impact | mitigation | owner |
+| --- | --- | --- | --- | --- |
+| R1 | ... | low | medium | high | ... | ... |
 
 ## Review Notes
 
-- PR-description-style notes that accumulate across slices.
+| id | note | source | applies_to |
+| --- | --- | --- | --- |
+| RN1 | ... | slice | review | completion | PR | ... |
 
-## Change History
+## Change Log
 
-- YYYY-MM-DD: Created/updated project shape.
+| date | change |
+| --- | --- |
+| YYYY-MM-DD | ... |
 ```
 
-Keep the project artifact broad. Do not use it as a detailed implementation plan. Do not use roadmap slices as accidental scope boundaries: a later slice is still part of the project unless the item is explicitly listed as a non-goal. Keep skill mechanics out of the artifact unless the user explicitly asks to document the process. Keep roadmap rows concrete enough to implement, and make their ordering rationale visible without writing full slice contracts. Move pure research, validation, and planning concerns into open questions, risks, verification notes, or cross-slice decisions.
+Project artifacts stay broad. Do not use roadmap rows as accidental scope boundaries: a later slice is still part of the project unless it is explicitly excluded in `Scope`. Move pure research, validation, and planning concerns into `Open Questions`, `Risks`, `Review Notes`, or `Decisions` instead of making them fake slices.
 
 ## Slice Artifact
 
@@ -85,89 +116,130 @@ updated: YYYY-MM-DD
 
 # NNN. {Slice Title}
 
-## Purpose
+## State
 
-The concrete implementation step this slice delivers and why it matters now.
+- purpose: {concrete implementation step and why it matters now}
+- parent_project: docs/rolling-wave/{project}/project.md
+- child_project: none | docs/rolling-wave/{child-project}/project.md
+- owner_fit: agent | human | either | hybrid
+- expected_repo_state: working | intentionally broken
+- active_attempt: none | YYYY-MM-DD
 
 ## Original Slice Contract
 
 ### Behavior
 
-- What the implemented slice must do.
+| id | behavior |
+| --- | --- |
+| B1 | ... |
 
 ### Acceptance Criteria
 
-- Criteria the implementation must satisfy.
+| id | criterion | verification_signal |
+| --- | --- | --- |
+| AC1 | ... | ... |
 
-### Verification
+### Verification Intent
 
-- The behavior that will need to be proven after implementation. Keep this as verification intent, not a fully locked test plan.
+| id | prove | method_hint |
+| --- | --- | --- |
+| V1 | ... | test | typecheck | manual | inspection |
 
 ### Expected Intermediate State
 
-- Whether this slice is expected to leave the repo compiling, runnable, and testable.
-- If not, what may be broken and which later slice or project risk will restore it before the finish line.
+- repo_state: working | intentionally broken
+- allowed_breakage: none | ...
+- restoration_target: none | later slice | roadmap item | project risk
+- restoration_ref: none | ...
+
+### Child Rolling-Wave Project
+
+- child_project: none | docs/rolling-wave/{child-project}/project.md
+- parent_completion_condition: none | ...
+- child_scope_in_parent: none | ...
+- child_scope_outside_parent: none | ...
 
 ### Likely Approach
 
-- Approach clear enough to start, without over-planning every file.
+- approach: ...
+- avoid: ...
+
+### Minimum Implementation
+
+- simplest_path: ...
+- existing_options_checked: stdlib | native | platform | existing helper | installed dependency | none
+- not_building_yet: ...
+- shortcut_ceiling: none | ...
+- upgrade_trigger: none | ...
 
 ### Execution Fit
 
-- Suggested owner: agent | human | either | hybrid
-- Reason:
-- Human handoff:
-- Agent fallback:
-- Timebox:
+- suggested_owner: agent | human | either | hybrid
+- reason: ...
+- human_handoff: none | ...
+- agent_fallback: none | ...
+- timebox: ...
 
 ### Parallel Work Chunks
 
-- Chunk 1:
-  - Output:
-  - Ownership:
-  - Dependencies:
-  - Suggested owner: agent | human | either | hybrid
-  - Reason:
-  - Human handoff:
-  - Agent fallback:
-  - Timebox:
-  - Post-implementation test focus:
-  - Review focus:
-- Or: serial/local-only because ...
+| chunk | output | ownership | depends_on | owner | test_focus | review_focus |
+| --- | --- | --- | --- | --- | --- | --- |
+| C1 | ... | ... | none | agent | human | either | hybrid | ... | ... |
+
+If serial/local-only:
+
+- serial_reason: ...
 
 ### Scope Boundaries
 
-- Included:
-- Excluded:
+| id | type | item |
+| --- | --- | --- |
+| SB1 | include | ... |
+| SB2 | exclude | ... |
 
 ### Risks
 
-- Risks specific to this slice.
+| id | risk | mitigation |
+| --- | --- | --- |
+| R1 | ... | ... |
 
-### User-Facing Decisions
+### Decisions
 
-- Resolved UX/product/API decisions.
+| id | decision | basis |
+| --- | --- | --- |
+| D1 | ... | direct | prior | reasoned |
 
 ## Readiness Notes
 
-- Questions asked, answers received, and explicitly deferred items.
+| date | item | result |
+| --- | --- | --- |
+| YYYY-MM-DD | question | answer | deferred |
 
 ## Implementation Notes
 
-- None yet.
+| date | status | owner_shape | changed_files | verification | notes |
+| --- | --- | --- | --- | --- | --- |
+| YYYY-MM-DD | none | local | subagents | human | ... | ... | ... |
 
 ## Test Notes
 
-- None yet.
+| date | coverage | command | result | gaps |
+| --- | --- | --- | --- | --- |
+| YYYY-MM-DD | ... | `...` | pass | fail | skipped | ... |
 
 ## Review Notes
 
-- None yet.
+| date | severity | finding | status | ref |
+| --- | --- | --- | --- | --- |
+| YYYY-MM-DD | P0 | P1 | P2 | P3 | ... | open | fixed | accepted | ... |
 
 ## Completion Learnings
 
-- None yet.
+| date | learning | affects |
+| --- | --- | --- |
+| YYYY-MM-DD | ... | parent | child | later slice | PR notes |
 ```
 
-Mark the slice `ready` only when behavior, verification intent, expected intermediate state, likely approach, execution fit, parallel work chunks or serial/local-only reasoning, meaningful risks, user-facing decisions, and scope boundaries are resolved for this slice. Do not require a detailed test plan before implementation; `implement-tests` turns the finished slice into focused test coverage afterward. A slice may intentionally leave the repo unable to compile, run, or pass tests if that intermediate breakage is recorded and tracked to a later slice or project risk.
-Keep skill mechanics out of slice artifacts. Do not write instructions like "do not rewrite this section", "filled by implement-slice", or "mark ready only when..." into the generated slice file.
+Mark the slice `ready` only when behavior, verification intent, expected intermediate state, child-project relationship, likely approach, minimum implementation, execution fit, parallel chunks or serial reason, meaningful risks, decisions, and scope boundaries are resolved for this slice. A slice may intentionally leave the repo unable to compile, run, or pass tests if that state is recorded and tracked to a later slice or project risk.
+
+A child rolling-wave project is a planning relationship, not a filesystem nesting requirement. Store sibling projects under `docs/rolling-wave/{project}/`; link them by path from the parent slice artifact. The parent slice is complete only when its declared child-project completion condition is met and any child learnings needed by the parent project have been captured in the parent slice or parent `project.md`.

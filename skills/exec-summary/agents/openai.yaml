@@ -1,0 +1,4 @@
+interface:
+  display_name: "Exec Summary"
+  short_description: "Summarize rolling-wave project progress"
+  default_prompt: "Use $exec-summary to summarize the current rolling-wave project with a markdown task-list slice overview and current-slice TL;DR."

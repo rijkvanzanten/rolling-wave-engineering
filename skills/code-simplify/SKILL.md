@@ -1,11 +1,11 @@
 ---
 name: code-simplify
-description: Review changed code for reuse, code quality, and efficiency, then apply worthwhile simplifications. Use when the user asks to simplify, clean up, tighten, or de-hack recent changes; when a patch feels more complex than necessary; or when Codex should do a focused post-pass on edited files before handing work back.
+description: Review changed code for YAGNI, removable over-complexity, reuse, code quality, and efficiency, then apply worthwhile simplifications. Use when the user asks to simplify, clean up, tighten, de-hack recent changes, identify logic that can be dropped, or review whether added safeguards and edge-case handling are actually needed.
 ---
 
 # Code Simplify
 
-Review recent code changes with three lenses: reuse, quality, and efficiency. Fix concrete issues directly while preserving behavior exactly. Prefer readable, explicit code over overly compact cleverness, and avoid churn for style-only tweaks or speculative refactors.
+Review recent code changes with four lenses: YAGNI, reuse, quality, and efficiency. Fix concrete issues directly while preserving behavior exactly. Prefer readable, explicit code over overly compact cleverness, and avoid churn for style-only tweaks or speculative refactors. Always identify possible parts that can be dropped because they are too complicated for the actual goal or protect against overly specific edge cases.
 
 ## Workflow
 
@@ -25,12 +25,15 @@ BASE_BRANCH=$(git-town config get-parent "$CURRENT_BRANCH" 2>/dev/null || true)
    - Read the changed files.
    - Search nearby modules and shared utilities for existing helpers before keeping new logic.
    - Check the surrounding patterns so the cleanup matches the codebase instead of imposing a new style.
-3. Run the three review passes.
+3. Run the four review passes.
    - If delegation is available and explicitly authorized, run the passes in parallel.
    - Otherwise run them locally, one pass at a time, against the same scope.
+   - Keep a short candidate list of logic that may be removable, including checks, branches, fallbacks, normalization, special cases, options, wrappers, abstractions, and compatibility paths.
 4. Apply the worthwhile fixes.
    - Change the code directly.
    - Skip false positives or low-value churn without arguing with them.
+   - Drop removable complexity directly when evidence shows it is outside the goal, unreachable, redundant, or not worth the maintenance cost.
+   - If a drop candidate might change intended behavior or requires a product/API decision, do not remove it silently; report it as a possible drop with the decision needed.
 5. Verify the result.
    - Run typecheck and lint when configured and reasonably scoped.
    - Run tests scoped to changed paths when possible.
@@ -40,6 +43,19 @@ BASE_BRANCH=$(git-town config get-parent "$CURRENT_BRANCH" 2>/dev/null || true)
    - Report what changed and any remaining risks.
 
 ## Review Passes
+
+### YAGNI
+
+- Challenge every new check, guard, fallback, abstraction, option, branch, and normalization step that was added by the current change.
+- Keep it only if it is required by the user's stated goal, the current slice contract, existing product behavior, a real caller, a testable failure mode, or a repo convention that already applies here.
+- Remove speculative safeguards for edge cases that are not reachable in the current flow, not part of the accepted scope, or not backed by evidence from the codebase.
+- Identify over-specific edge-case protection, such as branches for impossible input shapes, future-only compatibility, defensive defaults no caller can hit, duplicate validation after a trusted boundary, or fallbacks for states the surrounding code already prevents.
+- Identify over-complicated implementation shape, such as configuration knobs with one caller, abstractions around one behavior, multi-step normalization where a narrow input contract would do, or helpers that make the main path harder to understand.
+- Tag drop candidates as `delete`, `stdlib`, `native`, `yagni`, or `shrink` when reporting them so the action is obvious.
+- Classify each serious candidate as `drop now`, `keep`, or `ask`. Drop it now only when the intended behavior is clear and evidence supports the removal.
+- Prefer the smallest implementation that makes the intended behavior work. Do not preserve complexity just because it seems generally defensive.
+- If a safeguard is security-, data-loss-, permissions-, migration-, or compatibility-related, verify the concrete risk before removing it. Escalate if the risk is plausible but the requirement is unclear.
+- When removing YAGNI code, keep the deletion behavior-preserving for the intended path and note any deliberately unsupported edge case in the final response.
 
 ### Reuse
 
@@ -82,6 +98,8 @@ BASE_BRANCH=$(git-town config get-parent "$CURRENT_BRANCH" 2>/dev/null || true)
 
 ## Output
 
-- Summarize what was already good, what was simplified, and which checks ran.
+- Summarize what was already good, what was simplified, what was dropped as YAGNI, and which checks ran.
+- Include a short `Possible drops` section when there are plausible removals that were not made because they need user/product/API confirmation. Use tags: `delete`, `stdlib`, `native`, `yagni`, `shrink`.
+- Omit `Possible drops` when there are no meaningful candidates.
 - If the code was already clean enough, say so plainly.
 - If checks were not run or could not run, say that explicitly.

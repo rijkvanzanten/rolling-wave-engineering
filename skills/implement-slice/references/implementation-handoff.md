@@ -1,41 +1,24 @@
 # Implementation Handoff
 
-Append implementation attempts to the slice `Implementation Notes` section.
+Append implementation attempts to the slice `Implementation Notes` section. Keep the format compact and agent-readable.
 
 ```markdown
-### YYYY-MM-DD Implementation Attempt
+| date | status | owner_shape | changed_files | verification | notes |
+| --- | --- | --- | --- | --- | --- |
+| YYYY-MM-DD | in progress | local | subagents | human | `path/to/file` | `command` | ... |
 
-Status: in progress
-
-Changed files:
-- `path/to/file`
-
-Execution shape:
-- Subagents used: yes/no
-- Reason: ...
-- Prepared chunks used: yes/no
-- Chunk adjustments: none / ...
-- Human-fit pauses or handoffs: none / ...
-
-Ownership:
-- Local agent: ...
-- Chunk 1 / Subagent 1: ...
-- Human-owned chunks: ...
-
-Verification run:
-- `command`
-
-Deferred tests:
-- Tests or scenarios `implement-tests` should add after implementation settles.
-
-Notes:
-- Important implementation choices.
-
-Known risks:
-- Risks review should inspect.
-
-Deviations:
-- Anything that differs from the original slice contract.
+Keyed details when needed:
+- execution_reason: ...
+- chunk_adjustments: none | ...
+- human_handoff: none | ...
+- simplest_path: ...
+- skipped_yagni: none | ...
+- existing_helper_used: none | ...
+- shortcut_ceiling: none | ...
+- upgrade_trigger: none | ...
+- deferred_tests: none | ...
+- known_risks: none | ...
+- deviations: none | ...
 ```
 
 Delegation rules:
@@ -52,7 +35,9 @@ When using subagents:
 - Assign disjoint ownership.
 - Tell each subagent it is not alone in the codebase.
 - Tell each subagent not to revert edits made by others.
+- Tell each subagent to apply the minimum-implementation ladder before adding custom code: skip what is not needed, prefer stdlib/native/existing helpers, avoid new abstractions or dependencies, and write only the minimum custom code that satisfies the chunk.
 - Require each subagent to list changed files and any lightweight verification performed.
 - Require each subagent to identify focused tests `implement-tests` should add or update for its chunk.
+- Require each subagent to report what it deliberately skipped as YAGNI and any shortcut ceiling or upgrade trigger.
 - Require each subagent to report completed, partially completed, or blocked for its chunk.
 - Close each subagent after its output is captured and no further input is needed.

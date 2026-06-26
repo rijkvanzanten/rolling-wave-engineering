@@ -17,6 +17,8 @@ description: Shape or update a rolling-wave engineering project before slice pre
 - Shape the whole project, not the first slice. `shape-project` defines the global finish line, success criteria, non-goals, constraints, risks, and broad roadmap across all slices.
 - Slices are concrete implementation steps, not general project phases. Each slice should produce a reviewable change toward the finish line.
 - Slices are delivery sequence and implementation-detail containers. Do not use "later slice" as a way to avoid deciding whether something belongs in the project finish line.
+- A slice may be backed by another rolling-wave project when that slice is large enough to need its own finish line, roadmap, and review loop. Treat that as a parent/child planning relationship, not as de-scoping from the parent project.
+- Project and slice artifacts are agent state, not human-facing documentation. Prefer stable headings, terse `key: value` bullets, IDs, and tables over explanatory prose.
 - Keep skill mechanics out of project artifacts. Rules like "planning only in this phase", "do not modify product code", "ask one question at a time", or "write under docs/rolling-wave" are workflow instructions for the agent, not project constraints, non-goals, assumptions, risks, or decisions.
 
 ## Interaction Rules
@@ -77,6 +79,9 @@ description: Shape or update a rolling-wave engineering project before slice pre
 
    Keep slices implementation-shaped:
    - A slice is a concrete step that `prepare-next-slice` can turn into an implementation contract and `implement-slice` can build.
+   - If a concrete slice grows large enough to have its own global finish line, success criteria, and internal sequence, keep it as one parent slice and create or reference a child rolling-wave project under `docs/rolling-wave/{child-project}/`.
+   - Do not expand a child project's internal slices into the parent roadmap unless the parent genuinely needs to track those steps separately.
+   - Record the parent slice's completion condition in parent terms, for example "child project reaches its finish line and exports the migration notes needed by the parent project."
    - Do not create slices that are only project phases, research phases, planning phases, validation phases, or vague lifecycle stages.
    - Avoid slice names like "Design the approach", "Validate compatibility", "Phase 1", or "Future hardening" unless they are rewritten as concrete implementation deliverables.
    - Good slice framing names the product/code behavior that will change, for example "Add entitlement-aware catalog inputs" or "Filter list_items from the builtin catalog when item read is unavailable".
@@ -115,6 +120,7 @@ description: Shape or update a rolling-wave engineering project before slice pre
    - Are later slices broad enough to stay flexible, but concrete enough that `prepare-next-slice` can refine them?
    - Are dependencies and learnings flowing forward between slices?
    - Are any important requirements accidentally missing because they were treated as "later" rather than in-scope?
+   - Are any slices too large for one slice contract and better represented as a child rolling-wave project?
 
    Ask only the highest-leverage roadmap questions. Stop once the user and agent share a rough slice map, not when every slice has a full contract.
 
@@ -135,6 +141,8 @@ description: Shape or update a rolling-wave engineering project before slice pre
 7. Write or update `docs/rolling-wave/{project}/project.md`.
    - Use `../rolling-wave-common/references/artifacts.md` for the project template.
    - Use `../rolling-wave-common/references/lifecycle.md` for slice status rules.
+   - Optimize the artifact for future agent retrieval, not human readability: compact tables, stable IDs, canonical statuses, paths, and one fact per canonical section.
+   - Avoid narrative summaries, intro paragraphs, duplicated rationale, or polished prose. Put human-facing explanations in chat or `exec-summary`, not in `project.md`.
    - Create `slices/` if missing.
    - Add broad future implementation slices as `pending` when useful.
    - Update change history.
@@ -148,6 +156,13 @@ description: Shape or update a rolling-wave engineering project before slice pre
    - enough scope signal for later `prepare-next-slice`
    - an implied product/code/docs change that can be implemented and reviewed
    - no detailed file/function/API design unless it changes sequencing or risk
+   - a child-project reference when the slice is intentionally managed by another rolling-wave project
+
+   Before saving, normalize artifact style:
+   - convert long prose to short table rows or `key: value` bullets
+   - assign IDs to success criteria, constraints, assumptions, decisions, open questions, risks, and review notes
+   - remove duplicate facts from secondary sections and replace them with paths or IDs
+   - keep only decision-relevant `why` or `basis` text
 
    Before saving, rewrite phase-like roadmap items into implementation slices. If an item cannot be expressed as a concrete implementation step, record it as a risk, open question, verification concern, or cross-slice decision instead of a slice.
 

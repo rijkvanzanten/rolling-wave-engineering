@@ -14,6 +14,7 @@ description: Prepare the next rolling-wave slice for implementation. Use when th
 - Accept user preferences by default, but push back when strong evidence conflicts with the workflow, prior decisions, terminology, or constraints.
 - Pushback format: "I disagree because... The likely consequence is... Continue anyway?"
 - Do not modify product code. This skill stops after marking a slice `ready`.
+- Slice artifacts are agent state, not human-facing documentation. Prefer stable headings, terse `key: value` bullets, IDs, and tables over explanatory prose.
 
 ## Workflow
 
@@ -40,7 +41,9 @@ description: Prepare the next rolling-wave slice for implementation. Use when th
    - behavior is clear
    - verification intent is clear enough to know what `implement-tests` should later prove
    - expected intermediate state is clear, including whether compile/run/test failures are acceptable for this slice
+   - child rolling-wave project relationship is clear, including whether this slice is standalone or backed by another `docs/rolling-wave/{child-project}/project.md`
    - likely approach is clear enough
+   - minimum implementation is clear enough to prevent speculative safeguards, abstractions, dependencies, and future-proofing
    - parallelizable work chunks are identified or ruled out
    - execution fit is identified for the slice and each chunk
    - meaningful risks are known
@@ -51,6 +54,20 @@ description: Prepare the next rolling-wave slice for implementation. Use when th
    Do not require a detailed test plan, exact test files, or final validation commands at slice-preparation time unless they are already obvious and materially affect the slice shape. Tests are locked down after implementation by `implement-tests`.
    Do not require every slice to compile, run, or pass tests. Ask whether an intermediate broken state is acceptable only when the slice is likely to leave the repo broken or partially wired. If accepted, record what may be broken and which later slice, roadmap item, or project risk will resolve it before the finish line.
    Do not prepare a slice whose only output is "decide", "research", "validate", or "design" unless the slice also has a concrete reviewable artifact or code/docs change required for implementation.
+
+   Decide whether the slice should become a child rolling-wave project:
+   - Recommend a child project when the selected slice has its own finish line, multiple internal implementation steps, separate review cycles, or enough uncertainty that preparing it as one slice would be fake precision.
+   - Keep it as a normal slice when it can be implemented and reviewed as one coherent change, even if it has multiple chunks.
+   - If using a child project, create or reference `docs/rolling-wave/{child-project}/project.md`, define what child-project completion means for the parent slice, and record which child scope counts toward the parent slice versus what remains outside it.
+   - Do not duplicate the child project's internal roadmap inside the parent slice. Link to the child project and keep only the parent-level contract and completion condition.
+   - If the child project does not exist yet, route to `shape-project` for the child project before pretending the parent slice is ready.
+
+   Define the minimum implementation:
+   - Ask what code or behavior does not need to exist yet when the slice is likely to invite extra safeguards, knobs, compatibility paths, abstractions, or dependencies.
+   - Prefer stdlib, native platform features, existing project helpers, and already-installed dependencies before planning custom logic or new dependencies.
+   - Record the simplest acceptable path, things explicitly not being built, intentional shortcuts or ceilings, and the trigger that would justify upgrading the shortcut later.
+   - Do not remove necessary input validation at trust boundaries, security controls, data-loss prevention, accessibility basics, migration safety, or behavior the user explicitly requested.
+   - If the slice intentionally chooses a shortcut with a known ceiling, make the ceiling and upgrade trigger explicit so "later" does not become silent debt.
 
    Decompose implementation work where appropriate:
    - Create `Parallel Work Chunks` in the slice contract when the slice can be split into independent ownership areas.
@@ -73,14 +90,19 @@ description: Prepare the next rolling-wave slice for implementation. Use when th
    - Use `../rolling-wave-common/references/artifacts.md` for the slice template.
    - Use `../rolling-wave-common/references/lifecycle.md` for status rules.
    - Use `../rolling-wave-common/references/pushback.md` when a decision needs evidence-based pushback.
+   - Optimize the slice for future agent retrieval: compact tables, canonical statuses, stable IDs, paths, and one fact per canonical section.
+   - Avoid narrative summaries, duplicated context, and polished prose. Human-facing explanations belong in chat or `exec-summary`, not in the slice file.
    - Preserve an immutable `Original Slice Contract` section once the slice is marked `ready`.
    - Do not write skill workflow instructions into the slice artifact. Rules like "do not rewrite this section after ready", "filled by implement-slice", or "mark ready only when..." belong in the skill workflow, not the slice plan.
    - Include `Execution Fit` for the whole slice.
+   - Include `Minimum Implementation` in the `Original Slice Contract`.
+   - Include `Child Rolling-Wave Project` in the `Original Slice Contract`, even if the value is `none`.
    - Include `Parallel Work Chunks` in the `Original Slice Contract` when the implementation can be split, or explicitly record why it is serial/local-only.
    - Include suggested owner, reason, human handoff, agent fallback, and timebox for each chunk.
    - Name new slices `NNN-slug.md`.
    - Mark the selected slice `ready`.
    - Update `project.md` with relevant roadmap pressure, decisions, and change history.
+   - Before saving, convert long prose into table rows or `key: value` bullets and remove duplicate facts that already live in the parent project or child project.
 
 ## Completion
 
