@@ -20,6 +20,32 @@ Edit the artifact directly. Do not keep critical state only in chat.
 - Read the artifact first.
 - Read relevant code, docs, tests, configs, or adjacent plans aggressively whenever they can answer a question from evidence instead of user memory.
 - Resolve anything you can from disk before asking the user.
+- Classify the artifact scope before grilling:
+  - `project-shape`: `docs/rolling-wave/{project}/project.md` or an artifact with finish line, success criteria, scope, and roadmap.
+  - `slice-contract`: `docs/rolling-wave/{project}/slices/NNN-slug.md` or an artifact with original slice contract, acceptance criteria, and implementation notes.
+  - `other-plan`: any other source-of-truth plan.
+- Keep the interrogation depth matched to that scope.
+
+### Project-Shape Scope
+
+When grilling a rolling-wave `project.md` or other project-shape artifact, focus on global shape:
+- finish line
+- success criteria
+- scope and non-goals
+- constraints and assumptions
+- roadmap order
+- slice granularity
+- dependency flow between slices
+- whether broad slices should be split into commit-sized slices or promoted to child rolling-wave projects
+- cross-slice risks, decisions, and open questions
+
+Do not grill deep future slices for behavior, file choices, implementation approach, exact tests, edge cases, or detailed acceptance criteria unless that detail changes the global finish line, scope, roadmap order, dependency structure, or reviewability of the slice map. Future slice details belong to `prepare-next-slice` when that slice becomes current.
+
+For project-shape artifacts, a slice is good enough when it is a concrete, commit-sized, reviewable implementation step with clear ordering rationale. It does not need a full slice contract yet.
+
+### Slice-Contract Scope
+
+When grilling a slice contract, grill slice-level behavior, verification intent, expected intermediate state, minimum implementation, execution fit, risks, and scope boundaries until the slice is ready to implement.
 
 3. Preserve the artifact's native format while making it usable as a source of truth.
 - Do not rewrite the artifact into this skill's preferred template.
@@ -39,6 +65,7 @@ Edit the artifact directly. Do not keep critical state only in chat.
 - If the user replies `lgtm`, treat that as accepting the most recent recommended answer unless they also include conflicting instructions.
 - Ask at most one question per message. If no question is needed, continue resolving the next highest-risk branch without stopping.
 - Choose the next branch dynamically by risk and dependency leverage. Use the checklist in [references/checklist.md](references/checklist.md) as coverage control.
+- If the scoped artifact is project-shape, choose branches from global project and roadmap risk. Do not choose a branch solely because a deep future slice lacks implementation detail.
 - Ask what would have to be true for the current branch to fail whenever a branch starts to look settled and cannot be answered confidently from evidence.
 
 5. Reject weak answers.

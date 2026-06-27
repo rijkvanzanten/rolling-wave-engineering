@@ -7,6 +7,17 @@ Do not walk the list mechanically. Prioritize the highest-risk unresolved branch
 
 Check each branch unless it is clearly irrelevant to the scoped artifact.
 
+### Project Shape and Roadmap
+- If the artifact is a rolling-wave `project.md`, is the finish line globally coherent?
+- Are success criteria observable without pretending every future slice is specified?
+- Are roadmap items implementation steps rather than phases?
+- Is each roadmap slice small enough to review like one coherent commit?
+- Is the roadmap order causal: early slices reduce uncertainty, unblock later work, or deliberately delay risk?
+- Are any roadmap slices too broad and better split into commit-sized slices?
+- Are any roadmap slices so large that they should become child rolling-wave projects?
+- Are important requirements hidden as "later slice" details instead of being recorded as project scope, non-goals, risks, or decisions?
+- Do not require future slices to have detailed behavior, file plans, exact tests, or full acceptance criteria unless that detail affects global shape or ordering.
+
 ### Goal and Success Criteria
 - What outcome is the plan trying to achieve?
 - How will the user know it succeeded?
