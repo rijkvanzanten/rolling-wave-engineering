@@ -1,4 +1,4 @@
 interface:
   display_name: "Shape Project"
-  short_description: "Shape a rolling-wave project"
-  default_prompt: "Use $shape-project to shape a rolling-wave project before preparing slices."
+  short_description: "Shape a review-decision slice roadmap"
+  default_prompt: "Use $shape-project to shape a rolling-wave project until its finish line, scope, and broad sequence of bounded review-decision slices are clear."

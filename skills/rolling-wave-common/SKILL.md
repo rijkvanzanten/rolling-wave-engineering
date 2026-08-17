@@ -1,6 +1,6 @@
 ---
 name: rolling-wave-common
-description: Shared support references for the rolling-wave engineering skill set. Use only when a rolling-wave workflow skill explicitly points here, or when maintaining the shape-project, prepare-next-slice, implement-slice, review-slice, and complete-slice skills.
+description: Shared support references for the rolling-wave engineering skill set. Use only when a rolling-wave workflow skill explicitly points here, or when maintaining the shape-project, prepare-next-slice, implement-slice, finalize-slice, and complete-slice skills.
 ---
 
 # Rolling-Wave Common

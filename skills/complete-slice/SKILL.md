@@ -1,6 +1,6 @@
 ---
 name: complete-slice
-description: Complete a reviewed rolling-wave slice after user review. Use when the user says a slice is done, wants to mark an in-review slice done, capture implementation and review learnings, update docs/rolling-wave/{project}/project.md potential risks and review notes, output a roadmap progress checklist of completed and remaining slices, and prepare later slices to inherit what was learned.
+description: Mark a rolling-wave slice done on explicit user authority, regardless of its current lifecycle status or missing implementation, finalization, review, verification, or child-project state. Use when the user says a slice is done, complete, finished, accepted, or should be marked done; capture available material learnings, update project state, and output roadmap progress without requiring earlier workflow steps.
 ---
 
 # Complete Slice
@@ -9,67 +9,54 @@ description: Complete a reviewed rolling-wave slice after user review. Use when 
 
 - Work under `docs/rolling-wave/{project}/`.
 - Store project-level state in `project.md`; store slices in `slices/NNN-slug.md`.
-- Use slice statuses: `pending`, `ready`, `in progress`, `in review`, `done`.
-- Only one slice may be `ready`, `in progress`, or `in review` unless the user explicitly overrides.
-- Accept user preferences by default, but push back when strong evidence conflicts with the workflow, prior decisions, terminology, or constraints.
-- Pushback format: "I disagree because... The likely consequence is... Continue anyway?"
-- Do not perform generic code review. If review is needed, route to `review-slice`.
-- Slice/project artifacts are agent state. Record completion learnings and project updates as terse table rows or `key: value` bullets; avoid narrative prose unless it captures a decision-critical reason.
+- Use slice statuses: `pending`, `ready`, `in progress`, `ready for review`, `in review`, `done`.
+- Treat explicit user completion as authoritative. If the user says the slice is done, mark it `done`.
+- Accept completion from `pending`, `ready`, `in progress`, `ready for review`, or `in review`.
+- Do not require implementation notes, review notes, verification, accepted breakage records, child-project completion, or a clean `finalize-slice` pass.
+- Do not push back, ask for confirmation, or route to `implement-slice` or `finalize-slice` because prior lifecycle steps are missing.
+- Do not modify product code, run review, or run verification. This skill records user-declared completion.
+- Preserve existing project and slice history. Record only available material learnings; missing notes are not blockers.
+- Slice/project artifacts are agent state. Use terse table rows or `key: value` bullets.
 
 ## Workflow
 
-1. Resolve the project and slice.
-   - Prefer the single `in review` slice.
-   - If multiple candidates exist, ask.
-   - If the slice is not `in review`, push back before marking it done unless the user explicitly overrides.
+1. Resolve project and slice.
+   - Use the project or slice named by the user.
+   - Otherwise collect slices with status `ready`, `in progress`, `ready for review`, or `in review`; use one only when context identifies it unambiguously.
+   - If no active slice exists, use the next non-done roadmap slice when user context clearly identifies it.
+   - Ask only when multiple slices remain plausible and user did not identify one.
+   - If selected slice is already `done`, report that state and show roadmap progress without rewriting completion history.
 
-2. Read completion state.
-   - Read `project.md`.
-   - Read the slice file: original contract, expected intermediate state, implementation notes, test notes, review notes, acceptance criteria, and deferred items.
-   - If the slice references a child rolling-wave project, read that child `project.md` and relevant child slice state.
-   - Use `../rolling-wave-common/references/lifecycle.md` for completion transition rules.
-   - Use `../rolling-wave-common/references/pushback.md` when completion would skip unresolved work.
-   - Confirm the user is satisfied with any manual cleanup or remaining risk.
+2. Read available state.
+   - Read `project.md` roadmap and selected slice file.
+   - Read implementation, review, test backlog, child-project, risk, and decision state only when present.
+   - Do not interpret absent state as evidence against completion.
+   - Use `../rolling-wave-common/references/lifecycle.md` for status naming, not as a prerequisite gate.
 
-3. Refuse premature completion when needed.
-   - If review notes include unresolved requirements that contradict the accepted expected intermediate state, do not mark done.
-   - If the slice references a child rolling-wave project and the parent slice's child-project completion condition is not met, do not mark the parent slice done unless the user explicitly changes the condition or accepts the remaining child work as out of scope for the parent slice.
-   - It is valid to mark a slice done while the repo does not compile, run, or pass tests if that broken state is intentional, reviewed, accepted by the user, and tracked to a later slice, roadmap item, project risk, or review note.
-   - Do not mark done if the broken state threatens the final project finish line and no later work is identified to fix it.
-   - Route back to `implement-slice` or `review-slice` with the concrete blocker.
+3. Mark done.
+   - Set selected slice status to `done` regardless of prior status.
+   - Update matching `project.md` roadmap row to `done`.
+   - Clear current or active slice fields when they reference selected slice.
+   - If selected slice has an unfinished child project, leave child state unchanged. Parent completion declaration still stands.
+   - Do not emit warnings about skipped implementation, finalization, review, tests, or verification.
 
-4. Capture learnings.
-   - Add completion learnings to the slice.
-   - Update `project.md` with:
-     - project-level potential risks
-     - PR-style review notes
-     - cross-slice decisions
-     - roadmap pressure
-     - change history
-   - If the slice completed in an intentionally broken intermediate state, capture that in completion learnings and project risks/review notes so future slices inherit it.
-   - If the slice was backed by a child rolling-wave project, capture the child project path, child completion status, and parent-relevant child learnings in completion learnings and parent `project.md` when they affect later parent slices.
-   - Keep future slices broad unless a learning materially changes their scope or order.
-   - Apply completion learnings when annotating the roadmap, especially if they change order, expose a blocker, or alter a remaining slice's scope.
-   - Preserve the artifact's compact structure. Prefer appending dated table rows to `Completion Learnings`, `Risks`, `Review Notes`, `Decisions`, or `Change Log` over adding paragraphs.
+4. Capture available learnings.
+   - Add completion learnings only when existing state contains material information affecting later work, project risk, review notes, accepted breakage, PR context, or roadmap order.
+   - Do not invent learnings from missing implementation or review notes.
+   - Update `project.md` only for material cross-slice state already supported by artifacts or direct user statements.
+   - Preserve future slices unless known learning materially changes scope or order.
 
-5. Mark done.
-   - Set the slice status to `done`.
-   - Clear the active-slice slot so `prepare-next-slice` can choose the next slice.
-
-6. Output roadmap progress.
-   - Inspect `project.md` roadmap and all slice statuses after marking the current slice `done`.
-   - Treat the roadmap as the planned sequence. Do not call the next item "likely" unless the roadmap itself is ambiguous or completion learnings create explicit reorder pressure.
-   - Identify the next planned slice as the first non-done roadmap slice after applying any explicitly recorded roadmap pressure.
-   - Output a checklist of the project progression:
-     - checked items for slices with status `done`
-     - unchecked items for slices that remain `pending`, `ready`, `in progress`, or `in review`
-   - Keep the checklist in roadmap order. Include slice id/name and one-line purpose.
-   - Do not include redundant status labels like `(done)` or `(pending)` in checklist items; the checkbox state already communicates done vs not done.
-   - Mark the next planned slice clearly, for example `next`.
-   - If completion learnings create reorder pressure, add a short note below the checklist instead of replacing the planned sequence with "likely" language.
-   - If no unfinished roadmap slices remain, say the roadmap appears complete and name any remaining open questions, risks, or review notes that might require a new slice.
+5. Output roadmap progress.
+   - Inspect roadmap and slice statuses after completion.
+   - Output a roadmap checklist window centered on the selected slice: up to two preceding slices, the selected slice, and up to two following slices.
+   - Keep the window in planned order and never expand it beyond five slices. Near the start or end of the roadmap, show only the available preceding or following slices; do not pull in extra slices from the other side.
+   - Use checked items for `done`; unchecked items for all remaining statuses.
+   - Do not add redundant status labels such as `(done)` or `(pending)`.
+   - Mark the first remaining roadmap slice as `next` when it appears in the window, unless recorded roadmap pressure changes order.
+   - If no unfinished slices remain, say roadmap complete and name only material remaining project risks or open questions.
 
 ## Completion
 
-Stop after marking the slice `done`, summarizing only the learnings that should influence future work, naming the next planned slice, and outputting the roadmap progress checklist. Do not prepare the next slice unless the user explicitly asks.
-Omit routine caveats for planning-doc-only completion work. Do not say that no code tests were run or that `docs/rolling-wave/` is gitignored unless the user asked about verification, persistence, or file visibility, or unless an attempted validation step failed.
+Stop after marking selected slice `done`, capturing available material learnings, naming next planned slice, and showing roadmap checklist. Do not prepare next slice.
+
+Never respond with instructions to run `implement-slice` or `finalize-slice` first when user explicitly declared completion.

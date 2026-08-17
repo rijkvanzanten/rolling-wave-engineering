@@ -1,4 +1,0 @@
-interface:
-  display_name: "Review Slice"
-  short_description: "Review a slice with 0-3 reviewers"
-  default_prompt: "Use $review-slice to review the current slice implementation against its contract, using zero to three reviewers based on risk."

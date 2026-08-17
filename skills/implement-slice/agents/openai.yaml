@@ -1,4 +1,4 @@
 interface:
   display_name: "Implement Slice"
-  short_description: "Implement a slice before tests"
-  default_prompt: "Use $implement-slice to implement the current ready rolling-wave slice, delegate agent-fit chunks, pause for human-fit chunks when appropriate, and defer focused test coverage to $implement-tests."
+  short_description: "Implement a slice without broad tests"
+  default_prompt: "Use $implement-slice to implement the current ready rolling-wave slice locally by default, delegate only when parallelism or scale repays coordination cost, record final testing backlog, and mark completed implementation ready for review."

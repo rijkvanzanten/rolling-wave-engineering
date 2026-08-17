@@ -3,6 +3,8 @@
 Use this file to choose the next question and to keep coverage honest.
 Do not walk the list mechanically. Prioritize the highest-risk unresolved branch first.
 
+`prepare-review` mode does not walk this full checklist. It checks behavior and scope, dependency order, user-facing or irreversible decisions, review coherence, safe deferrals, and one credible failure mode, then stops when the slice is ready enough to implement.
+
 ## Core Branches
 
 Check each branch unless it is clearly irrelevant to the scoped artifact.
@@ -11,9 +13,11 @@ Check each branch unless it is clearly irrelevant to the scoped artifact.
 - If the artifact is a rolling-wave `project.md`, is the finish line globally coherent?
 - Are success criteria observable without pretending every future slice is specified?
 - Are roadmap items implementation steps rather than phases?
-- Is each roadmap slice small enough to review like one coherent commit?
+- Does each roadmap slice fit one bounded human review decision?
 - Is the roadmap order causal: early slices reduce uncertainty, unblock later work, or deliberately delay risk?
-- Are any roadmap slices too broad and better split into commit-sized slices?
+- Does each roadmap slice present one bounded review decision and verification strategy?
+- Are any roadmap slices combining separate approval decisions, unrelated mental models, distinct risk classes, incompatible intermediate states, or materially different verification strategies that should split?
+- Are small chunks sharing one mechanical recipe or proof fragmented into separate slices merely because they are independently useful or cross domains?
 - Are any roadmap slices so large that they should become child rolling-wave projects?
 - Are important requirements hidden as "later slice" details instead of being recorded as project scope, non-goals, risks, or decisions?
 - Do not require future slices to have detailed behavior, file plans, exact tests, or full acceptance criteria unless that detail affects global shape or ordering.

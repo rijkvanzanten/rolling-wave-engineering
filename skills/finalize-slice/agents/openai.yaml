@@ -1,0 +1,4 @@
+interface:
+  display_name: "Finalize Slice"
+  short_description: "Review and fix one slice until clean"
+  default_prompt: "Use $finalize-slice to review the current slice, fix confirmed in-contract findings, ask about project-shape changes, repeat until clean, and leave it in review."

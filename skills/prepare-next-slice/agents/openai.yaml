@@ -1,4 +1,4 @@
 interface:
   display_name: "Prepare Next Slice"
-  short_description: "Prepare one slice with execution fit"
-  default_prompt: "Use $prepare-next-slice to prepare the next rolling-wave slice, decompose parallel chunks where appropriate, and identify agent-fit, human-fit, either, or hybrid work."
+  short_description: "Prepare one bounded review decision"
+  default_prompt: "Use $prepare-next-slice to prepare one pending slice in the main context by default, add fresh preparation review when risk warrants it, and mark the bounded contract ready."

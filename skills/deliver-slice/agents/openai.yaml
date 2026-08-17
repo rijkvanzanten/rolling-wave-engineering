@@ -1,0 +1,4 @@
+interface:
+  display_name: "Deliver Slice"
+  short_description: "Implement then finalize one slice"
+  default_prompt: "Use $deliver-slice to implement the current ready slice locally unless delegation clearly pays, preserve the review checkpoint, then finalize it in mandatory fresh context."

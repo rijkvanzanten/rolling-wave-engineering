@@ -6,7 +6,7 @@ We have been experimenting with a more structured way to use coding agents in re
 
 The main observation is that agentic engineering is not just a model-quality problem. Better models help, but the bigger unlock is giving the model the right harness, skills, artifacts, and review loops. Without those, even a strong model tends to produce plausible work that still needs a lot of human cleanup.
 
-The workflow described here is called rolling-wave agentic engineering. It keeps a clear project finish line, sketches the broad implementation path, then fully prepares, implements, reviews, and completes one concrete slice before moving on to the next one.
+The workflow described here is called rolling-wave agentic engineering. It keeps a clear project finish line, sketches the broad implementation path, then fully prepares, implements, reviews, and completes concrete slices without planning the whole project in detail up front. Preparation of one slice may overlap implementation or review of another.
 
 The point is to make agentic work easier to review. Instead of asking an agent to execute a whole project plan and then reviewing the scattered last 10-30% across every step, we keep the active review surface small and let each completed slice inform the next one.
 
@@ -24,9 +24,11 @@ A strong model in a weak harness is still limited. A strong model with vague ins
 
 This document explains the rolling-wave agentic engineering workflow I have been experimenting with. The short version:
 
-> Keep a clear project finish line, sketch the broad path, then fully prepare, implement, review, and complete one concrete slice before preparing the next one.
+> Keep a clear project finish line, sketch the broad path, and prepare each concrete slice only when it is close enough to execution for useful detail.
 
 The point is not more process. The point is a smaller and more useful review surface.
+
+Slice boundaries follow review decisions and verification methods, not commit count or product domain. Multiple independently executable or revertible chunks may stay together when one architectural intent or transformation recipe, risk class, and bounded proof cover them. This makes cross-domain mechanical batches valid slices. Split work needing separate approval decisions, unrelated mental models, distinct risk classes, incompatible intermediate states, or materially different verification. Use roughly 500 non-move changed lines as a soft default review budget; lower it for semantic risk and allow larger repetitive mechanical diffs when one proof covers the batch.
 
 ## What we built
 
@@ -35,10 +37,11 @@ The current implementation is a Codex plugin-style collection of skills and revi
 At a high level, it includes:
 
 - `shape-project`: define the project finish line, success criteria, non-goals, risks, and broad slice sequence
-- `prepare-next-slice`: take the next slice and grill the unresolved behavior, scope, risk, and verification decisions
+- `prepare-next-slice`: draft the next slice locally by default; use fresh authorship or independent review only when context size, uncertainty, or semantic risk warrants it
 - `implement-slice`: implement one ready slice and record what changed
-- `review-slice`: verify the implementation against the original slice contract
-- `complete-slice`: capture learnings, risks, and reviewer notes before moving on
+- `deliver-slice`: implement locally unless delegation pays, preserve the review checkpoint, then finalize in fresh context
+- `finalize-slice`: review the implementation, fix confirmed findings, and repeat until clean for user review
+- `complete-slice`: accept the user's completion call, mark the slice done from any status, and carry available learnings forward
 - `code-review`, `code-simplify`, `debug`, and `pr-description`: supporting workflows for normal engineering work
 - reviewer-agent prompts for correctness, testing, maintainability, security, reliability, API contracts, TypeScript, Vue, Rust, and planning docs
 
@@ -244,6 +247,7 @@ Slice statuses are:
 - `pending`
 - `ready`
 - `in progress`
+- `ready for review`
 - `in review`
 - `done`
 
@@ -312,6 +316,8 @@ Expected output:
 
 This is not the time to prepare every future slice. Only the next slice needs full readiness.
 
+Preparation does not require every earlier slice to be done. Multiple slices may be `ready`, `in progress`, `ready for review`, or `in review` while different agents work. A concrete unresolved dependency can still keep a later slice pending; another slice's status alone cannot.
+
 ### 3. Implement the slice
 
 Use this when a slice is ready.
@@ -328,39 +334,38 @@ Use subagents if the work can be split cleanly.
 Expected output:
 
 - code changes
-- slice status set to `in progress`
+- slice status set to `ready for review` when implementation completes; partial or blocked work stays `in progress`
 - implementation notes
 - changed files listed
 - verification performed, or explicitly not performed
 - known review focus recorded
 
-### 4. Review the slice
+### 4. Finalize the slice
 
 Use this after implementation.
 
-The review compares the implementation to the original slice contract. That matters. Otherwise the target can drift during implementation, and review becomes a debate over a moving goal.
+Finalization compares the implementation to the original slice contract. It confirms findings, fixes required in-contract issues, and repeats review until no required findings remain. Findings that materially change the project shape or contradict a recorded assumption are decisions, not automatic fixes, so the skill asks before proceeding. A clean pass leaves the slice `in review`; it does not mark it done.
 
 Example prompt:
 
 ```text
-Use review-slice for the current in-progress slice.
-Verify it against the original slice contract and use reviewer subagents.
+Use finalize-slice for the current ready-for-review slice.
+Keep going until it is clean and in review. Ask me before changing project shape or contradicting project assumptions.
 ```
 
 Expected output:
 
-- findings first
-- missing requirements called out
-- verification results
-- residual risks
-- project-level review notes when useful
-- slice status set to `in review`
+- confirmed findings fixed
+- material project-shape decisions brought to the user
+- review and verification repeated until clean
+- project-level review notes recorded when useful
+- slice status left `in review`
 
-You can run review more than once. The slice stays `in review` until the human review loop is satisfied.
+`finalize-slice` owns the review-fix loop. It leaves the clean slice `in review`. `complete-slice` owns the user-approved transition to `done`.
 
 ### 5. Complete the slice
 
-Use this after review and manual cleanup.
+Use this when you consider the slice done. User completion authority is final; missing implementation, review, finalization, verification, or child-project state does not block the transition.
 
 Completion is where the workflow captures what changed about our understanding:
 
@@ -374,8 +379,7 @@ Example prompt:
 
 ```text
 Use complete-slice.
-I reviewed the current slice and am happy with it.
-Capture the learnings and mark it done.
+Slice 006 is done. Mark it done and show roadmap progress.
 ```
 
 Expected output:
@@ -482,10 +486,10 @@ The useful norms are:
 - Treat `project.md` as the global source of truth
 - Treat slice files as implementation contracts
 - Do not mark a slice `ready` until behavior, scope, verification, and risks are clear
-- Do not mark a slice `done` until the human review loop is satisfied
+- Mark a slice `done` when the user explicitly declares it complete, regardless of prior workflow status
 - Record learnings as soon as they affect future work
 - Let the agent push back when a suggestion conflicts with evidence
-- Keep future slices broad until they are the next slice being prepared
+- Keep future slices broad until they are selected for preparation; selected preparation may overlap implementation or review of another slice
 
 The goal is not to remove human judgment. The goal is to spend human judgment on smaller, better-framed decisions.
 

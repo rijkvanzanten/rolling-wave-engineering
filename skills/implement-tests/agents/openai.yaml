@@ -1,4 +1,0 @@
-interface:
-  display_name: "Implement Tests"
-  short_description: "Add focused slice tests when useful"
-  default_prompt: "Use $implement-tests to add focused tests for the current implemented rolling-wave slice when useful, or record intentionally skipped coverage for accepted intermediate breakage."

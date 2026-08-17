@@ -2,15 +2,17 @@
 
 A lot of agentic engineering workflows want to scope the whole project up front, then have the agent execute across that entire plan. That works surprisingly well for getting 70-90% of a lot of things done. It also tends to leave the last 10-30% of every step spread across the whole project: unclear edge cases, fuzzy scope calls, incomplete verification, and review debt that all comes due at once.
 
-This is at odds with my own personal working style. I personally keep a clear project finish line, sketch the broad implementation sequence, then fully prepare, implement, review, and complete one concrete slice before moving on to the next one. Each completed slice updates the project context, and the next slice gets prepared with those learnings in mind.
+This is at odds with my own personal working style. I personally keep a clear project finish line, sketch the broad implementation sequence, then fully prepare, implement, review, and complete concrete slices. Each completed slice updates the project context. Preparation can move ahead while another slice is ready, being implemented, or in review when the next contract does not depend on unsettled work.
+
+A slice is one bounded human review decision, not one commit or the smallest independently useful change. It can combine multiple chunks, including cross-domain mechanical changes, when one architectural intent or transformation recipe, risk class, and verification strategy cover the batch. Split work needing separate approval decisions, unrelated mental models, distinct risk classes, or materially different verification. Roughly 500 non-move changed lines is a soft default review budget, not a universal cap.
 
 ## What It Adds
 
 - Project shaping that defines the finish line and broad roadmap without turning the whole project into a giant upfront implementation plan
-- Slice preparation that grills the next implementation step until behavior, scope, risks, and verification intent are clear
+- Main-local slice preparation by default, with fresh authorship or independent grilling only when context size, uncertainty, or semantic risk warrants the handoff
 - Execution-fit calls that identify whether a slice or chunk is better suited for agent work, human work, either, or a hybrid handoff
-- Exploratory implementation first, then focused test implementation once the slice has settled
-- Implementation, testing, and review workflows that can use focused subagents when that actually helps
+- Exploratory implementation first, with broad test coverage saved for a final testing/validation slice
+- Main-local implementation for cohesive work, conditional Terra workers for parallel or large isolated work, plus mandatory fresh-context finalization
 - Slice completion that records learnings, risks, and reviewer notes before moving on
 - Supporting passes for local code review, simplification, debugging, and PR descriptions
 
@@ -21,11 +23,11 @@ This is at odds with my own personal working style. I personally keep a clear pr
 | Skill | Purpose |
 | --- | --- |
 | `shape-project` | Define or update the global project direction, success criteria, non-goals, constraints, risks, and rough slice sequence. |
-| `prepare-next-slice` | Pick the next slice, grill unresolved slice-level decisions, identify execution fit, and mark exactly one slice ready. |
-| `implement-slice` | Implement a ready slice exploratorily, delegate agent-fit chunks, and pause for human-fit chunks when useful. |
-| `implement-tests` | Add focused tests for the newly implemented slice before review. |
-| `review-slice` | Review an in-progress slice against its original contract, using reviewer subagents when available. |
-| `complete-slice` | Capture learnings, risks, and review notes, then mark the slice done after manual review. |
+| `prepare-next-slice` | Draft one pending slice locally by default, add fresh authorship or independent grilling when risk warrants it, identify execution fit, and mark it ready. |
+| `implement-slice` | Implement a ready slice locally by default, delegate only when coordination pays, then mark it ready for review. |
+| `deliver-slice` | Run implementation and fresh-context finalization in one invocation while preserving their lifecycle checkpoint. |
+| `finalize-slice` | Review an implemented slice, fix confirmed in-contract findings, ask about material project-shape changes, and repeat until clean while leaving it in review. |
+| `complete-slice` | Mark any user-declared finished slice done, capture available material learnings, and show roadmap progress regardless of prior workflow status. |
 
 ### Supporting Skills
 
@@ -74,7 +76,7 @@ Each slice file describes one concrete implementation step:
 - scope boundaries
 - risks
 - implementation notes
-- test notes
+- final test backlog
 - review notes
 - completion learnings
 
@@ -83,6 +85,7 @@ Slice statuses:
 - `pending`
 - `ready`
 - `in progress`
+- `ready for review`
 - `in review`
 - `done`
 
@@ -90,12 +93,12 @@ Slice statuses:
 
 1. Use `shape-project` to establish the finish line and rough slice sequence.
 2. Use `prepare-next-slice` to make one pending slice ready.
-3. Use `implement-slice` to build that slice, keeping implementation exploratory.
-4. Use `implement-tests` to lock down the newly added logic with focused tests.
-5. Use `review-slice` until the implementation matches the slice contract.
-6. Do whatever manual cleanup or review you want.
-7. Use `complete-slice` to capture learnings and mark the slice done.
-8. Repeat from `prepare-next-slice`.
+3. Use `deliver-slice` to implement locally unless parallelism or scale justifies workers, preserve `ready for review`, then run `finalize-slice` in fresh context.
+4. Alternatively invoke `implement-slice` and `finalize-slice` separately when you want a manual checkpoint between phases.
+5. Do manual cleanup or review.
+6. Use `complete-slice` when you declare the slice done. Prior implementation or finalization status does not block completion.
+7. Repeat from `prepare-next-slice`.
+8. Use the final testing/validation slice to add project-level test coverage once implementation has settled.
 
 Useful supporting passes:
 
